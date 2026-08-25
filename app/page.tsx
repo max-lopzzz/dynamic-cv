@@ -1,41 +1,37 @@
+"use client";
+import { useEffect, useState } from "react";
+
+type Stage = "boot" | "login" | "desktop";
 const projects = [
-  { id: "pakupaku", name: "PakuPaku", type: "REACT NATIVE · IN PROGRESS", progress: 72, copy: "Inclusive nutrition tracking for trans people and people with metabolic-rate conditions.", tags: ["product", "community"], href: "https://github.com/max-lopzzz/pakupaku" },
-  { id: "beadart", name: "Bead Art Helper", type: "REACT · TYPESCRIPT", progress: 91, copy: "A 221-color CIELAB palette matcher for precise bead-art color matching.", tags: ["shipped", "polishing"], href: "https://github.com/max-lopzzz/beadart" },
-  { id: "boxbuddy", name: "BoxBuddy", type: "NEXT.JS · SUPABASE", progress: 84, copy: "QR-powered inventory tracking with cost and margin visibility.", tags: ["beta", "QR codes"], href: "https://github.com/max-lopzzz/boxbuddy" },
-  { id: "kechappu", name: "Kechappu", type: "ELECTRON · MACOS", progress: 100, copy: "A cat-filled Pomodoro timer with task tracking.", tags: ["archived", "focus"], href: "https://github.com/max-lopzzz/kechappu" },
-  { id: "pokemon", name: "Pokémon Team Picker", type: "PYTHON · STREAMLIT", progress: 100, copy: "A small tool for putting together a Pokémon team.", tags: ["shipped", "game"], href: "https://github.com/max-lopzzz/whos-that-pokemon-game" },
-  { id: "pawmodoro", name: "Pawmodoro", type: "FOCUS TOOL · PROTOTYPE", progress: 46, copy: "A cozy focus companion for getting through the task at hand.", tags: ["prototype", "pets"], href: "https://github.com/max-lopzzz/pawmodoro" },
+  ["PakuPaku", "A nutrition tracker made with trans people and metabolic conditions in mind.", "72%", "pakupaku"],
+  ["Bead Art Helper", "Turns a picture into a bead palette without the guessing.", "91%", "beadart"],
+  ["BoxBuddy", "A QR inventory helper for knowing where your stuff actually is.", "84%", "boxbuddy"],
+  ["Pokémon Team Picker", "For the very serious business of choosing a Pokémon team.", "100%", "pokemon_team_picker"],
 ];
+const repo = "https://github.com/max-lopzzz/";
 
-import { Terminal } from "./terminal";
-
-const experiences = [
-  ["NOW", "Software Engineer Intern", "Iteramind", "Building practical tools for CFOSC and NGOs across Mexico — from Next.js platforms to a 29-tool CRM MCP server."],
-  ["2026", "Indie App Developer", "Self-employed", "Shipping PakuPaku end-to-end: product direction, roadmap, community, and code."],
-  ["2025", "Game Developer & Project Lead", "Pixel Borregos’ Game Jam", "Led a five-person C#/Unity team to 1st place."],
-];
-
+function Beep({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) { return <button className="bevel" onClick={() => { navigator.vibrate?.(8); onClick?.(); }}>{children}</button>; }
+function Window({ title, children, className = "", onClose }: { title: string; children: React.ReactNode; className?: string; onClose?: () => void }) {
+  return <section className={`window ${className}`}><div className="titlebar"><span>{title}</span><button onClick={onClose} aria-label="Close window">×</button></div>{children}</section>;
+}
 export default function Home() {
-  return <main>
-    <nav className="nav shell"><a className="wordmark" href="#top">max<span>.dev</span></a><div><a href="#work">work</a><a href="#about">about</a><a href="mailto:m.lopz.montn@gmail.com">contact</a></div></nav>
+  const [stage, setStage] = useState<Stage>("boot"); const [clock, setClock] = useState(""); const [about, setAbout] = useState(true); const [music, setMusic] = useState(false);
+  useEffect(() => { const enter = (e: KeyboardEvent) => { if (e.key === "Enter" && stage === "boot") setStage("login"); }; addEventListener("keydown", enter); const timer = setInterval(() => setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })), 1000); return () => { removeEventListener("keydown", enter); clearInterval(timer); }; }, [stage]);
+  if (stage === "boot") return <main className="boot" onClick={() => setStage("login")}><pre>MAX BIOS v0.98
 
-    <section id="top" className="hero shell">
-      <p className="eyebrow">✦ AVAILABLE FOR INTERESTING THINGS · MONTERREY, MX</p>
-      <h1>I build things<br /><em>because I want to</em>.</h1>
-      <p className="intro">Hi, I’m Max. I make little apps, bigger projects, and games when I should probably be sleeping.</p>
-      <div className="hero-actions"><a className="button primary" href="#work">See selected work <span>↘</span></a><a className="button quiet" href="mailto:m.lopz.montn@gmail.com">Let’s talk <span>↗</span></a></div>
-      <div className="hero-note"><span className="pulse" /> CURRENTLY: building software for civil society orgs + PakuPaku</div><Terminal projects={projects} />
-    </section>
+Checking memory... OK
+Loading: MAXIMILIANO.EXE
+Loading: PROJECTS.DAT
+Loading: DRUMS.MID
 
-    <section className="signal"><div className="shell signal-inner"><span>ENGINEER</span><i>✦</i><span>INDIE BUILDER</span><i>✦</i><span>GAME DEV</span><i>✦</i><span>DRUMMER</span></div></section>
-
-    <section id="work" className="shell section"><div className="section-head"><p className="eyebrow">01 / SELECTED WORK</p><h2>Stuff I’ve made<br />so far.</h2><p>A small collection of things I have made, am still making, or learned a lot from.</p></div><div className="project-grid">{projects.map((project, index) => <a className="project" href={project.href} target="_blank" rel="noreferrer" key={project.name}><div className={`project-visual visual-${index}`}><span>{String(index + 1).padStart(2, "0")}</span><i className={"pixel-icon pixel-" + index} aria-label={project.name + " pixel icon"} /></div><div className="project-copy"><p>{project.type}</p><h3>{project.name}<b>↗</b></h3><div>{project.tags.map(tag => <span key={tag}>{tag}</span>)}</div><p className="description">{project.copy}</p><div className="progress-line"><i style={{ width: project.progress + "%" }} /></div><p className="progress-label">BUILD STATUS: {project.progress}%</p></div></a>)}</div><a className="all-work" href="https://github.com/max-lopzzz" target="_blank" rel="noreferrer">More experiments on GitHub <span>↗</span></a></section>
-
-    <section id="about" className="shell story"><div><p className="eyebrow">02 / A LITTLE ABOUT ME</p><h2>I like making<br />things people use.</h2></div><div className="story-copy"><p>I’m an Engineering in Computer Technologies student at Tec de Monterrey. I like making things that are useful, a little odd, and made with care.</p><p>Some of it is for NGOs, some of it is for people who need a more thoughtful tool, and some of it is just because a game idea made me laugh. I try to leave things a bit better than I found them.</p><div className="skills"><span>TypeScript / JavaScript</span><span>React / Next.js</span><span>Python</span><span>PostgreSQL</span><span>C# / Unity</span><span>Product & UX</span></div></div></section>
-
-    <section className="shell section journey"><div className="section-head"><p className="eyebrow">03 / THE TIMELINE</p><h2>What I’m<br />up to lately.</h2></div><div className="timeline">{experiences.map(([year, role, company, copy]) => <article key={role}><p>{year}</p><div><h3>{role}</h3><h4>{company}</h4><span>{copy}</span></div></article>)}</div></section>
-
-    <section id="contact" className="contact"><div className="shell"><p className="eyebrow">04 / GET IN TOUCH</p><h2>Want to<br /><em>say hi?</em></h2><a className="email" href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com <span>↗</span></a><div className="socials"><a href="https://github.com/max-lopzzz" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://www.linkedin.com/in/max-lopezzz/" target="_blank" rel="noreferrer">LinkedIn ↗</a><a href="mailto:m.lopz.montn@gmail.com">Email ↗</a></div></div></section>
-    <footer className="shell"><span>© {new Date().getFullYear()} MAXIMILIANO LÓPEZ MONTAÑO</span><span>MADE WITH INTENT + A LITTLE NOISE ✦</span></footer>
+Press ENTER to continue_</pre></main>;
+  if (stage === "login") return <main className="login"><Window title="Welcome to MaxOS"><div className="login-body"><div className="avatar">M</div><h1>Maximiliano</h1><p>Click to enter the desktop.</p><Beep onClick={() => setStage("desktop")}>Enter</Beep></div></Window></main>;
+  return <main className="desktop">
+    <div className="wallpaper" />
+    <aside className="desktop-icons"><a href="#portfolio">▣<span>My Projects</span></a><a href="https://github.com/max-lopzzz" target="_blank">⌘<span>GitHub</span></a><button onClick={() => setMusic(!music)}>♫<span>Music.exe</span></button></aside>
+    <Window title="max_portfolio.exe" className="portfolio"><div className="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div><div className="portfolio-content" id="portfolio"><div className="banner"><p>MAXIMILIANO LÓPEZ MONTAÑO</p><h1>hello, internet.</h1><span>software · games · weird little tools</span></div><article className="intro98"><div className="pixel-face">:)</div><p>Hi, I’m Max. I’m a CS student from Monterrey who likes making software that feels useful, friendly, and a bit more human than it has to be.</p></article><h2>✦ project folder</h2><div className="projects">{projects.map(([name, copy, progress, slug]) => <a key={slug} href={repo + slug} target="_blank" className="project98"><b>▦ {name}</b><p>{copy}</p><div className="meter"><i style={{ width: progress }} /></div><small>status: {progress} complete</small></a>)}</div><h2>✦ things I do</h2><div className="services"><span>web apps</span><span>indie games</span><span>product design</span><span>software experiments</span></div><h2>✦ frequently asked questions</h2><details><summary>What are you working on right now?</summary><p>Mostly PakuPaku, work projects for civil-society organizations, and whatever I can’t stop thinking about.</p></details><details><summary>Can I say hi?</summary><p>Yes please. Email is best: <a href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com</a></p></details></div></Window>
+    {about && <Window title="about_max.txt" className="about" onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
+    {music && <Window title="tiny media player" className="player" onClose={() => setMusic(false)}><p>♫ currently not playing</p><input type="range" aria-label="Volume" /><Beep>▶ play</Beep></Window>}
+    <footer className="taskbar"><Beep>▣ Start</Beep><span>max_portfolio.exe</span><time>{clock}</time></footer><div className="scanlines" /><div className="crt-roll" />
   </main>;
 }
