@@ -2,6 +2,10 @@
 
 A static Next.js portfolio, ready to deploy on Vercel.
 
+## Live site
+
+[dynamic-cv-inky.vercel.app](https://dynamic-cv-inky.vercel.app/)
+
 ## Run locally
 
 ```bash
