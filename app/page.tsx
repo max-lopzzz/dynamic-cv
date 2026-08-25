@@ -8,6 +8,7 @@ import { projects, repo } from "./projects";
 import { drumFill } from "./sound";
 
 type Stage = "boot" | "login" | "desktop";
+const beadArtShareUrl = process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
 const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
 
 export default function Home() {
@@ -80,7 +81,7 @@ Press ENTER to continue_</pre></main>;
     {about && <Window id="about" title="about_max.txt" className="about" zIndex={zMap.about} onFocus={focus} onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
     {hobbies && <Window id="hobbies" title="hobbies.exe" className="hobbies" zIndex={zMap.hobbies} onFocus={focus} onClose={() => setHobbies(false)}>
       <div className="hobbies-body">
-        <div className="hobby-card"><b>🧵 bead art</b><p>I turn pixel-art patterns into perler bead grids — color-matched, no guessing. Built a whole tool for it.</p><a href="https://beadart-sable.vercel.app/" target="_blank">open beadart-sable ↗</a></div>
+        <div className="hobby-card"><b>🧵 bead art</b><p>I turn pixel-art patterns into perler bead grids — color-matched, no guessing. Built a whole tool for it.</p>{beadArtShareUrl && <iframe src={beadArtShareUrl} className="beadart-embed" title="Current bead art progress" loading="lazy" />}<a href="https://beadart-sable.vercel.app/" target="_blank">open beadart-sable ↗</a></div>
         <div className="hobby-card"><b>🥁 drums</b><p>Currently learning Tom Sawyer by Rush — Neil Peart’s fills are humbling. Give it a listen:</p><Beep onClick={openPlayer}>▶ open player</Beep></div>
       </div>
     </Window>}
