@@ -22,3 +22,6 @@
 @keyframes fall{to{transform:translateY(110vh) rotate(25deg);opacity:0}}
 @keyframes egg-pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+.kofi-cta{margin:14px 0 4px}
+.kofi-cta .bevel{display:inline-block;text-decoration:none;color:#111}
+.kofi-cta .bevel:hover{background:#d9d9d9}
