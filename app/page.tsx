@@ -60,6 +60,7 @@ Press ENTER to continue_</pre></main>;
     <aside className="desktop-icons">
       <a href="#portfolio">▣<span>My Projects</span></a>
       <a href="https://github.com/max-lopzzz" target="_blank">⌘<span>GitHub</span></a>
+      <a href="https://ko-fi.com/P5P61TI6BS" target="_blank">☕<span>Ko-fi</span></a>
       <button onClick={() => (music ? setMusic(false) : openPlayer())}>♫<span>Music.exe</span></button>
       <button onClick={() => (hobbies ? setHobbies(false) : openHobbies())}>❖<span>Hobbies</span></button>
       <button onClick={() => (terminalOpen ? setTerminalOpen(false) : openTerminal())}>▤<span>Terminal</span></button>
@@ -76,6 +77,7 @@ Press ENTER to continue_</pre></main>;
         <h2>✦ frequently asked questions</h2>
         <details><summary>What are you working on right now?</summary><p>Mostly PakuPaku, work projects for civil-society organizations, and whatever I can’t stop thinking about.</p></details>
         <details><summary>Can I say hi?</summary><p>Yes please. Email is best: <a href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com</a></p></details>
+        <p className="kofi-cta"><a className="bevel" href="https://ko-fi.com/P5P61TI6BS" target="_blank">☕ buy me a Ko-fi ↗</a></p>
       </div>
     </Window>
     {about && <Window id="about" title="about_max.txt" className="about" zIndex={zMap.about} onFocus={focus} onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
