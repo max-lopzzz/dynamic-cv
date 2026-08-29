@@ -684,6 +684,10 @@ details p {
   color:#176b2b;
 }
 
+.gb-rate-limit{
+  color:#7a4d00;
+}
+
 .gb-empty{
   margin:0;
   color:#555;

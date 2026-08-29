@@ -1,33 +1,22 @@
-// app/api/guestbook/route.ts
-// Retro guestbook with moderation + email notifications.
-
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type RedisClientType } from "redis";
-import { Resend } from "resend";
 
 const REDIS_URL = process.env.KV_REDIS_URL || process.env.REDIS_URL;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-const PENDING_KEY = "guestbook:pending";
-const APPROVED_KEY = "guestbook:approved";
-
+const KEY = "guestbook:entries";
+const RATE_LIMIT_PREFIX = "guestbook:rate:";
 const MAX_ENTRIES = 50;
+
 const NAME_MAX = 40;
 const MESSAGE_MAX = 240;
 
-function isModerator(req: NextRequest) {
-  return (
-    req.cookies.get("guestbook_moderator")?.value ===
-    "authenticated"
-  );
-}
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW = 60 * 10;
 
 type Entry = {
-  id: string;
   name: string;
   message: string;
   ts: number;
-  status: "pending" | "approved";
 };
 
 function configured() {
@@ -37,7 +26,9 @@ function configured() {
 let clientPromise: Promise<RedisClientType> | null = null;
 
 async function getClient(): Promise<RedisClientType> {
-  if (!REDIS_URL) throw new Error("not_configured");
+  if (!REDIS_URL) {
+    throw new Error("not_configured");
+  }
 
   if (!clientPromise) {
     const client = createClient({
@@ -45,54 +36,43 @@ async function getClient(): Promise<RedisClientType> {
     }) as RedisClientType;
 
     client.on("error", () => {
-      // Errors are handled by the request that is using Redis.
+      // Errors are handled by the request try/catch.
     });
 
     clientPromise = client
       .connect()
       .then(() => client)
-      .catch((err) => {
+      .catch((error) => {
         clientPromise = null;
-        throw err;
+        throw error;
       });
   }
 
   return clientPromise;
 }
 
-function parseEntry(value: string): Entry | null {
-  try {
-    const parsed = JSON.parse(value);
+function getClientIp(req: NextRequest) {
+  const forwarded = req.headers.get("x-forwarded-for");
 
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      typeof parsed.id !== "string" ||
-      typeof parsed.name !== "string" ||
-      typeof parsed.message !== "string" ||
-      typeof parsed.ts !== "number"
-    ) {
-      return null;
-    }
-
-    return parsed as Entry;
-  } catch {
-    return null;
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
   }
+
+  return req.headers.get("x-real-ip") || "unknown";
 }
 
-/**
- * GET
- *
- * Public:
- *   /api/guestbook
- *   → approved messages only
- *
- * Moderation:
- *   /api/guestbook?moderation=pending
- *   → pending messages
- */
-export async function GET(req: NextRequest) {
+function cleanText(value: unknown, maxLength: number) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+export async function GET() {
   if (!configured()) {
     return NextResponse.json({
       entries: [],
@@ -100,36 +80,24 @@ export async function GET(req: NextRequest) {
     });
   }
 
-    const moderation =
-    req.nextUrl.searchParams.get("moderation");
-
-  if (moderation === "pending" && !isModerator(req)) {
-    return NextResponse.json(
-      { error: "unauthorized" },
-      { status: 401 }
-    );
-  }
-
   try {
     const client = await getClient();
 
-    const moderation =
-      req.nextUrl.searchParams.get("moderation");
-
-    const key =
-      moderation === "pending"
-        ? PENDING_KEY
-        : APPROVED_KEY;
-
     const raw = await client.lRange(
-      key,
+      KEY,
       0,
       MAX_ENTRIES - 1
     );
 
-    const entries = raw
-      .map(parseEntry)
-      .filter((entry): entry is Entry => entry !== null);
+    const entries: Entry[] = raw
+      .map((value) => {
+        try {
+          return JSON.parse(value) as Entry;
+        } catch {
+          return null;
+        }
+      })
+      .filter((entry): entry is Entry => Boolean(entry));
 
     return NextResponse.json({
       entries,
@@ -147,12 +115,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/**
- * POST
- *
- * New messages go into the pending queue.
- * They are NOT publicly visible until approved.
- */
 export async function POST(req: NextRequest) {
   if (!configured()) {
     return NextResponse.json(
@@ -172,200 +134,103 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const b =
-    body && typeof body === "object"
-      ? (body as Record<string, unknown>)
-      : {};
+  if (!body || typeof body !== "object") {
+    return NextResponse.json(
+      { error: "bad_request" },
+      { status: 400 }
+    );
+  }
 
-  // Honeypot: bots that fill this field are silently ignored.
+  const data = body as Record<string, unknown>;
+
+  /*
+   * Honeypot:
+   * legitimate visitors should never fill this field.
+   * Bots get a successful response, but nothing is stored.
+   */
   if (
-    typeof b.website === "string" &&
-    b.website.trim()
+    typeof data.website === "string" &&
+    data.website.trim()
   ) {
     return NextResponse.json({ ok: true });
   }
 
-  const name = String(b.name || "")
-    .trim()
-    .slice(0, NAME_MAX);
-
-  const message = String(b.message || "")
-    .trim()
-    .slice(0, MESSAGE_MAX);
+  const name = cleanText(data.name, NAME_MAX);
+  const message = cleanText(data.message, MESSAGE_MAX);
 
   if (!name || !message) {
     return NextResponse.json(
-      { error: "bad_request" },
+      { error: "name_and_message_required" },
       { status: 400 }
     );
   }
 
-  const entry: Entry = {
-    id: crypto.randomUUID(),
-    name,
-    message,
-    ts: Date.now(),
-    status: "pending",
-  };
+  if (name.length > NAME_MAX || message.length > MESSAGE_MAX) {
+    return NextResponse.json(
+      { error: "message_too_long" },
+      { status: 400 }
+    );
+  }
 
   try {
     const client = await getClient();
 
+    /*
+     * Rate limit:
+     *
+     * 5 submissions per IP every 10 minutes.
+     *
+     * INCR creates the key if it doesn't exist.
+     * EXPIRE only needs to run for the first request.
+     */
+    const ip = getClientIp(req);
+    const rateKey = `${RATE_LIMIT_PREFIX}${ip}`;
+
+    const attempts = await client.incr(rateKey);
+
+    if (attempts === 1) {
+      await client.expire(
+        rateKey,
+        RATE_LIMIT_WINDOW
+      );
+    }
+
+    if (attempts > RATE_LIMIT_MAX) {
+      const ttl = await client.ttl(rateKey);
+
+      return NextResponse.json(
+        {
+          error: "rate_limited",
+          retryAfter: Math.max(ttl, 0),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.max(ttl, 0)),
+          },
+        }
+      );
+    }
+
+    const entry: Entry = {
+      name,
+      message,
+      ts: Date.now(),
+    };
+
     await client.lPush(
-      PENDING_KEY,
+      KEY,
       JSON.stringify(entry)
     );
 
     await client.lTrim(
-      PENDING_KEY,
+      KEY,
       0,
       MAX_ENTRIES - 1
     );
-  } catch {
-    return NextResponse.json(
-      { error: "redis_unreachable" },
-      { status: 502 }
-    );
-  }
-
-  // Email notification.
-  //
-  // Failure to send the notification does NOT make the
-  // guestbook submission fail. The message is already safely
-  // stored in Redis.
-  if (RESEND_API_KEY) {
-    try {
-      const resend = new Resend(RESEND_API_KEY);
-
-      await resend.emails.send({
-        from:
-          process.env.RESEND_FROM_EMAIL ||
-          "Guestbook <onboarding@resend.dev>",
-        to: "m.lopz.montn@gmail.com",
-        subject: "🐾 New guestbook message waiting for moderation",
-        text: [
-          "A new message was submitted to your portfolio guestbook.",
-          "",
-          `Name: ${name}`,
-          `Message: ${message}`,
-          "",
-          "The message is currently pending moderation.",
-          "",
-          "Open your moderation panel to approve or reject it.",
-        ].join("\n"),
-      });
-    } catch {
-      // Intentionally ignored.
-      // The guestbook message is already stored.
-    }
-  }
-
-  return NextResponse.json({
-    ok: true,
-    pending: true,
-  });
-}
-
-/**
- * PATCH
- *
- * Moderation actions:
- *
- *   approve
- *   reject
- */
-export async function PATCH(req: NextRequest) {
-  if (!configured()) {
-    return NextResponse.json(
-      { error: "not_configured" },
-      { status: 503 }
-    );
-  }
-
-    if (!isModerator(req)) {
-    return NextResponse.json(
-      { error: "unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  let body: unknown;
-
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json(
-      { error: "bad_request" },
-      { status: 400 }
-    );
-  }
-
-  const b =
-    body && typeof body === "object"
-      ? (body as Record<string, unknown>)
-      : {};
-
-  const id = String(b.id || "").trim();
-  const action = String(b.action || "").trim();
-
-  if (
-    !id ||
-    (action !== "approve" && action !== "reject")
-  ) {
-    return NextResponse.json(
-      { error: "bad_request" },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const client = await getClient();
-
-    const raw = await client.lRange(
-      PENDING_KEY,
-      0,
-      MAX_ENTRIES - 1
-    );
-
-    const entry = raw
-      .map(parseEntry)
-      .find((item) => item?.id === id);
-
-    if (!entry) {
-      return NextResponse.json(
-        { error: "entry_not_found" },
-        { status: 404 }
-      );
-    }
-
-    // Remove it from pending first.
-    await client.lRem(
-      PENDING_KEY,
-      1,
-      JSON.stringify(entry)
-    );
-
-    if (action === "approve") {
-      const approved: Entry = {
-        ...entry,
-        status: "approved",
-      };
-
-      await client.lPush(
-        APPROVED_KEY,
-        JSON.stringify(approved)
-      );
-
-      await client.lTrim(
-        APPROVED_KEY,
-        0,
-        MAX_ENTRIES - 1
-      );
-    }
 
     return NextResponse.json({
       ok: true,
-      action,
       entry,
     });
   } catch {

@@ -15,7 +15,8 @@ type Status =
   | "sending"
   | "error"
   | "unconfigured"
-  | "success";
+  | "success"
+  | "rate_limited";
 
 const MESSAGE_MAX = 240;
 
@@ -35,6 +36,11 @@ export function Guestbook() {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          setStatus("rate_limited");
+          return;
+        }
+
         throw new Error(String(response.status));
       }
 
@@ -79,7 +85,8 @@ export function Guestbook() {
       !name.trim() ||
       !message.trim() ||
       status === "sending" ||
-      status === "unconfigured"
+      status === "unconfigured" ||
+      status === "rate_limited"
     ) {
       return;
     }
@@ -220,6 +227,13 @@ export function Guestbook() {
       {status === "error" && (
         <p className="gb-note">
           couldn&apos;t reach the guestbook — try again in a bit?
+        </p>
+      )}
+
+      {status === "rate_limited" && (
+        <p className="gb-note">
+          whoa, slow down! you&apos;ve signed enough for now ♡
+          try again in a few minutes.
         </p>
       )}
 
