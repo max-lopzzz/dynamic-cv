@@ -61,6 +61,7 @@ Press ENTER to continue_</pre></main>;
       <a href="#portfolio">▣<span>My Projects</span></a>
       <a href="https://github.com/max-lopzzz" target="_blank">⌘<span>GitHub</span></a>
       <a href="https://ko-fi.com/P5P61TI6BS" target="_blank">☕<span>Ko-fi</span></a>
+      <a href="https://discord.com/users/605435789010141207" target="_blank">💬<span>Discord</span></a>
       <button onClick={() => (music ? setMusic(false) : openPlayer())}>♫<span>Music.exe</span></button>
       <button onClick={() => (hobbies ? setHobbies(false) : openHobbies())}>❖<span>Hobbies</span></button>
       <button onClick={() => (terminalOpen ? setTerminalOpen(false) : openTerminal())}>▤<span>Terminal</span></button>
@@ -76,7 +77,7 @@ Press ENTER to continue_</pre></main>;
         <div className="services"><span>web apps</span><span>indie games</span><span>product design</span><span>software experiments</span></div>
         <h2>✦ frequently asked questions</h2>
         <details><summary>What are you working on right now?</summary><p>Mostly PakuPaku, work projects for civil-society organizations, and whatever I can’t stop thinking about.</p></details>
-        <details><summary>Can I say hi?</summary><p>Yes please. Email is best: <a href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com</a></p></details>
+        <details><summary>Can I say hi?</summary><p>Yes please. Email is best: <a href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com</a> — or send feedback on <a href="https://discord.com/users/605435789010141207" target="_blank">Discord ↗</a>.</p></details>
         <p className="kofi-cta"><a className="bevel" href="https://ko-fi.com/P5P61TI6BS" target="_blank">☕ buy me a Ko-fi ↗</a></p>
       </div>
     </Window>
