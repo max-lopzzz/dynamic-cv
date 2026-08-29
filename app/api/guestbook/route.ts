@@ -1,22 +1,33 @@
+// app/api/guestbook/route.ts
+// Retro guestbook with moderation + email notifications.
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, type RedisClientType } from "redis";
+import { Resend } from "resend";
 
 const REDIS_URL = process.env.KV_REDIS_URL || process.env.REDIS_URL;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
-const KEY = "guestbook:entries";
+const PENDING_KEY = "guestbook:pending";
+const APPROVED_KEY = "guestbook:approved";
+
 const MAX_ENTRIES = 50;
-
 const NAME_MAX = 40;
 const MESSAGE_MAX = 240;
 
-type EntryStatus = "pending" | "approved" | "rejected";
+function isModerator(req: NextRequest) {
+  return (
+    req.cookies.get("guestbook_moderator")?.value ===
+    "authenticated"
+  );
+}
 
 type Entry = {
   id: string;
   name: string;
   message: string;
   ts: number;
-  status: EntryStatus;
+  status: "pending" | "approved";
 };
 
 function configured() {
@@ -34,7 +45,7 @@ async function getClient(): Promise<RedisClientType> {
     }) as RedisClientType;
 
     client.on("error", () => {
-      // Errors are handled by the request try/catch.
+      // Errors are handled by the request that is using Redis.
     });
 
     clientPromise = client
@@ -49,10 +60,37 @@ async function getClient(): Promise<RedisClientType> {
   return clientPromise;
 }
 
+function parseEntry(value: string): Entry | null {
+  try {
+    const parsed = JSON.parse(value);
+
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      typeof parsed.id !== "string" ||
+      typeof parsed.name !== "string" ||
+      typeof parsed.message !== "string" ||
+      typeof parsed.ts !== "number"
+    ) {
+      return null;
+    }
+
+    return parsed as Entry;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Public guestbook.
+ * GET
  *
- * Only approved messages are returned.
+ * Public:
+ *   /api/guestbook
+ *   → approved messages only
+ *
+ * Moderation:
+ *   /api/guestbook?moderation=pending
+ *   → pending messages
  */
 export async function GET(req: NextRequest) {
   if (!configured()) {
@@ -62,54 +100,39 @@ export async function GET(req: NextRequest) {
     });
   }
 
+    const moderation =
+    req.nextUrl.searchParams.get("moderation");
+
+  if (moderation === "pending" && !isModerator(req)) {
+    return NextResponse.json(
+      { error: "unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
     const client = await getClient();
 
-    const moderation = req.nextUrl.searchParams.get("moderation");
+    const moderation =
+      req.nextUrl.searchParams.get("moderation");
+
+    const key =
+      moderation === "pending"
+        ? PENDING_KEY
+        : APPROVED_KEY;
 
     const raw = await client.lRange(
-      KEY,
+      key,
       0,
       MAX_ENTRIES - 1
     );
 
-    const entries: Entry[] = raw
-      .map((s) => {
-        try {
-          return JSON.parse(s) as Entry;
-        } catch {
-          return null;
-        }
-      })
-      .filter((entry): entry is Entry => Boolean(entry));
-
-    /*
-     * Moderation page:
-     * return pending messages.
-     */
-    if (moderation === "pending") {
-      return NextResponse.json({
-        entries: entries.filter(
-          (entry) => entry.status === "pending"
-        ),
-        configured: true,
-      });
-    }
-
-    /*
-     * Public guestbook:
-     * only approved messages.
-     *
-     * This also keeps compatibility with any old entries
-     * that don't have a status yet.
-     */
-    const approved = entries.filter(
-      (entry) =>
-        entry.status === "approved"
-    );
+    const entries = raw
+      .map(parseEntry)
+      .filter((entry): entry is Entry => entry !== null);
 
     return NextResponse.json({
-      entries: approved,
+      entries,
       configured: true,
     });
   } catch {
@@ -125,7 +148,10 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * Create a new guestbook message.
+ * POST
+ *
+ * New messages go into the pending queue.
+ * They are NOT publicly visible until approved.
  */
 export async function POST(req: NextRequest) {
   if (!configured()) {
@@ -151,12 +177,7 @@ export async function POST(req: NextRequest) {
       ? (body as Record<string, unknown>)
       : {};
 
-  /*
-   * Honeypot.
-   *
-   * Humans should never fill this field.
-   * Silently accept and drop bot submissions.
-   */
+  // Honeypot: bots that fill this field are silently ignored.
   if (
     typeof b.website === "string" &&
     b.website.trim()
@@ -184,11 +205,6 @@ export async function POST(req: NextRequest) {
     name,
     message,
     ts: Date.now(),
-
-    /*
-     * IMPORTANT:
-     * New messages start as pending.
-     */
     status: "pending",
   };
 
@@ -196,12 +212,12 @@ export async function POST(req: NextRequest) {
     const client = await getClient();
 
     await client.lPush(
-      KEY,
+      PENDING_KEY,
       JSON.stringify(entry)
     );
 
     await client.lTrim(
-      KEY,
+      PENDING_KEY,
       0,
       MAX_ENTRIES - 1
     );
@@ -212,20 +228,49 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Email notification.
+  //
+  // Failure to send the notification does NOT make the
+  // guestbook submission fail. The message is already safely
+  // stored in Redis.
+  if (RESEND_API_KEY) {
+    try {
+      const resend = new Resend(RESEND_API_KEY);
+
+      await resend.emails.send({
+        from:
+          process.env.RESEND_FROM_EMAIL ||
+          "Guestbook <onboarding@resend.dev>",
+        to: "m.lopz.montn@gmail.com",
+        subject: "🐾 New guestbook message waiting for moderation",
+        text: [
+          "A new message was submitted to your portfolio guestbook.",
+          "",
+          `Name: ${name}`,
+          `Message: ${message}`,
+          "",
+          "The message is currently pending moderation.",
+          "",
+          "Open your moderation panel to approve or reject it.",
+        ].join("\n"),
+      });
+    } catch {
+      // Intentionally ignored.
+      // The guestbook message is already stored.
+    }
+  }
+
   return NextResponse.json({
     ok: true,
-
-    /*
-     * Tell the UI that moderation is required.
-     */
     pending: true,
   });
 }
 
 /**
- * Moderate an existing message.
+ * PATCH
  *
- * action:
+ * Moderation actions:
+ *
  *   approve
  *   reject
  */
@@ -234,6 +279,13 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json(
       { error: "not_configured" },
       { status: 503 }
+    );
+  }
+
+    if (!isModerator(req)) {
+    return NextResponse.json(
+      { error: "unauthorized" },
+      { status: 401 }
     );
   }
 
@@ -253,18 +305,13 @@ export async function PATCH(req: NextRequest) {
       ? (body as Record<string, unknown>)
       : {};
 
-  const id =
-    typeof b.id === "string"
-      ? b.id
-      : "";
+  const id = String(b.id || "").trim();
+  const action = String(b.action || "").trim();
 
-  const action =
-    b.action === "approve" ||
-    b.action === "reject"
-      ? b.action
-      : null;
-
-  if (!id || !action) {
+  if (
+    !id ||
+    (action !== "approve" && action !== "reject")
+  ) {
     return NextResponse.json(
       { error: "bad_request" },
       { status: 400 }
@@ -275,57 +322,51 @@ export async function PATCH(req: NextRequest) {
     const client = await getClient();
 
     const raw = await client.lRange(
-      KEY,
+      PENDING_KEY,
       0,
       MAX_ENTRIES - 1
     );
 
-    let found = false;
+    const entry = raw
+      .map(parseEntry)
+      .find((item) => item?.id === id);
 
-    const updated = raw.map((s) => {
-      try {
-        const entry = JSON.parse(s) as Entry;
-
-        if (entry.id !== id) {
-          return s;
-        }
-
-        found = true;
-
-        return JSON.stringify({
-          ...entry,
-          status:
-            action === "approve"
-              ? "approved"
-              : "rejected",
-        });
-      } catch {
-        return s;
-      }
-    });
-
-    if (!found) {
+    if (!entry) {
       return NextResponse.json(
-        { error: "not_found" },
+        { error: "entry_not_found" },
         { status: 404 }
       );
     }
 
-    /*
-     * Replace the Redis list with the updated version.
-     */
-    await client.del(KEY);
+    // Remove it from pending first.
+    await client.lRem(
+      PENDING_KEY,
+      1,
+      JSON.stringify(entry)
+    );
 
-    if (updated.length > 0) {
-      await client.rPush(KEY, updated);
+    if (action === "approve") {
+      const approved: Entry = {
+        ...entry,
+        status: "approved",
+      };
+
+      await client.lPush(
+        APPROVED_KEY,
+        JSON.stringify(approved)
+      );
+
+      await client.lTrim(
+        APPROVED_KEY,
+        0,
+        MAX_ENTRIES - 1
+      );
     }
 
     return NextResponse.json({
       ok: true,
-      status:
-        action === "approve"
-          ? "approved"
-          : "rejected",
+      action,
+      entry,
     });
   } catch {
     return NextResponse.json(

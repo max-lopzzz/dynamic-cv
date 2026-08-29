@@ -40,3 +40,444 @@
 .gb-entry-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px}
 .gb-entry-head time{color:#666;font-size:11px}
 .gb-entry p{margin:0;word-break:break-word}
+
+/* =========================================================
+   guestbook.exe — moderation center
+   ========================================================= */
+
+.guestbook-moderation {
+  min-height: 100vh;
+  padding: 32px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+.moderation-window {
+  width: min(760px, 100%);
+
+  border: 2px solid var(--text);
+
+  background: var(--bg-2);
+
+  box-shadow: 7px 7px 0 var(--text);
+}
+
+.window-titlebar {
+  min-height: 34px;
+  padding: 5px 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: var(--headers);
+  color: var(--bg);
+
+  border-bottom: 2px solid var(--text);
+
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.window-controls button {
+  width: 24px;
+  height: 22px;
+
+  padding: 0;
+
+  border: 1px solid var(--text);
+
+  background: var(--buttons);
+  color: var(--text);
+
+  font-family: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.window-controls button:active {
+  transform: translate(1px, 1px);
+}
+
+.moderation-content {
+  padding: 18px;
+}
+
+.moderation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+
+  font-size: 9px;
+  letter-spacing: 0.12em;
+
+  opacity: 0.65;
+}
+
+.moderation-heading h1 {
+  margin: 0;
+
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.paw {
+  font-size: 28px;
+}
+
+.moderation-stats {
+  display: flex;
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+.moderation-stats > div {
+  flex: 1;
+
+  padding: 10px;
+
+  border: 1px solid var(--text);
+
+  background: var(--bg);
+
+  text-align: center;
+}
+
+.moderation-stats strong,
+.moderation-stats span {
+  display: block;
+}
+
+.moderation-stats strong {
+  font-size: 20px;
+}
+
+.moderation-stats span {
+  margin-top: 3px;
+
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.terminal-status {
+  margin-bottom: 14px;
+  padding: 7px 9px;
+
+  border: 1px dashed var(--text);
+
+  font-size: 10px;
+
+  opacity: 0.75;
+}
+
+.terminal-status span {
+  font-weight: 700;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moderation-card {
+  padding: 13px;
+
+  border: 1px solid var(--text);
+
+  background: var(--bg);
+
+  box-shadow: 3px 3px 0 var(--text);
+}
+
+.message-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 10px;
+}
+
+.message-author {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.message-header time {
+  flex-shrink: 0;
+
+  font-size: 9px;
+
+  opacity: 0.55;
+}
+
+.message-body {
+  padding: 10px;
+
+  border-left: 2px solid var(--headers);
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.message-actions {
+  display: flex;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.message-actions button {
+  padding: 6px 10px;
+
+  border: 1px solid var(--text);
+
+  background: var(--buttons);
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.message-actions button:hover {
+  background: var(--link);
+  color: var(--bg);
+}
+
+.message-actions button:active {
+  transform: translate(1px, 1px);
+}
+
+.message-actions button:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+
+.empty-state {
+  padding: 36px 16px;
+
+  border: 1px dashed var(--text);
+
+  text-align: center;
+}
+
+.empty-state > span {
+  font-size: 24px;
+}
+
+.empty-state p {
+  margin: 8px 0 3px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.empty-state small {
+  font-size: 9px;
+  opacity: 0.65;
+}
+
+.loading-paw {
+  display: inline-block;
+
+  animation: guestbook-paw-bounce 0.8s
+    infinite alternate;
+}
+
+@keyframes guestbook-paw-bounce {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+.moderation-footer {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 15px;
+
+  font-size: 9px;
+
+  opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+  .guestbook-moderation {
+    padding: 15px;
+  }
+
+  .moderation-window {
+    box-shadow: 4px 4px 0 var(--text);
+  }
+
+  .window-titlebar {
+    font-size: 10px;
+  }
+
+  .moderation-content {
+    padding: 13px;
+  }
+
+  .message-header {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .message-header time {
+    font-size: 8px;
+  }
+
+  .message-actions {
+    flex-direction: column;
+  }
+
+  .message-actions button {
+    width: 100%;
+  }
+}
+
+.gb-success {
+  border: 2px outset var(--bg);
+  background: var(--bg-2);
+  color: var(--text);
+  padding: 9px 10px;
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.gb-success strong {
+  font-size: 12px;
+}
+
+.moderation-login-window {
+  width: min(520px, 100%);
+}
+
+.login-terminal {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+
+  border: 1px dashed var(--text);
+
+  background: var(--bg);
+
+  font-size: 10px;
+  line-height: 1.7;
+
+  opacity: 0.8;
+}
+
+.login-terminal p {
+  margin: 0;
+}
+
+.moderation-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.moderation-login-form label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.moderation-login-form input {
+  width: 100%;
+
+  padding: 9px 10px;
+
+  border: 2px inset var(--bg);
+
+  background: var(--bg);
+
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.moderation-login-form input:focus {
+  border-color: var(--headers);
+}
+
+.moderation-login-button {
+  margin-top: 4px;
+
+  padding: 8px 12px;
+
+  border: 1px solid var(--text);
+
+  background: var(--buttons);
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.moderation-login-button:hover {
+  background: var(--link);
+  color: var(--bg);
+}
+
+.moderation-login-button:active {
+  transform: translate(1px, 1px);
+}
+
+.moderation-login-button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.login-error {
+  margin: 10px 0 0;
+
+  padding: 7px 9px;
+
+  border: 1px solid var(--text);
+
+  background: var(--bg);
+
+  font-size: 10px;
+
+  text-align: center;
+}

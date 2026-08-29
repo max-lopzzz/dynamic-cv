@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type GuestbookEntry = {
   id: string;
@@ -11,18 +11,89 @@ type GuestbookEntry = {
 };
 
 export default function GuestbookModeration() {
-  const [entries, setEntries] = useState<
-    GuestbookEntry[]
-  >([]);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<string | null>(
-    null
-  );
+  const [entries, setEntries] = useState<GuestbookEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [notice, setNotice] = useState("checking guestbook.exe...");
 
-  const [notice, setNotice] = useState(
-    "checking guestbook.exe..."
-  );
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
+
+  async function checkAuthentication() {
+    try {
+      const response = await fetch(
+        "/api/guestbook?moderation=pending",
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (response.ok) {
+        setAuthenticated(true);
+        await loadEntries();
+      } else {
+        setAuthenticated(false);
+      }
+    } catch {
+      setAuthenticated(false);
+    } finally {
+      setCheckingAuth(false);
+    }
+  }
+
+  async function login(e: FormEvent) {
+    e.preventDefault();
+
+    if (!password.trim() || loggingIn) return;
+
+    setLoggingIn(true);
+    setLoginError("");
+
+    try {
+      const response = await fetch("/api/guestbook/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        setLoginError("wrong password... try again ♡");
+        setPassword("");
+        return;
+      }
+
+      setPassword("");
+      setAuthenticated(true);
+      await loadEntries();
+    } catch {
+      setLoginError(
+        "couldn't reach guestbook.exe... :("
+      );
+    } finally {
+      setLoggingIn(false);
+    }
+  }
+
+  async function logout() {
+    await fetch("/api/guestbook/auth", {
+      method: "DELETE",
+    });
+
+    setAuthenticated(false);
+    setEntries([]);
+    setNotice("logged out ♡");
+  }
 
   async function loadEntries() {
     try {
@@ -35,6 +106,11 @@ export default function GuestbookModeration() {
           cache: "no-store",
         }
       );
+
+      if (response.status === 401) {
+        setAuthenticated(false);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("request_failed");
@@ -53,10 +129,6 @@ export default function GuestbookModeration() {
     }
   }
 
-  useEffect(() => {
-    loadEntries();
-  }, []);
-
   async function moderate(
     id: string,
     action: "approve" | "reject"
@@ -64,28 +136,28 @@ export default function GuestbookModeration() {
     setBusy(id);
 
     try {
-      const response = await fetch(
-        "/api/guestbook",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id,
-            action,
-          }),
-        }
-      );
+      const response = await fetch("/api/guestbook", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          action,
+        }),
+      });
+
+      if (response.status === 401) {
+        setAuthenticated(false);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("moderation_failed");
       }
 
       setEntries((current) =>
-        current.filter(
-          (entry) => entry.id !== id
-        )
+        current.filter((entry) => entry.id !== id)
       );
 
       setNotice(
@@ -102,6 +174,142 @@ export default function GuestbookModeration() {
     }
   }
 
+  if (checkingAuth) {
+    return (
+      <main className="guestbook-moderation">
+        <section className="moderation-window">
+          <header className="window-titlebar">
+            <span>
+              🐾 guestbook.exe
+            </span>
+          </header>
+
+          <div className="moderation-content">
+            <div className="empty-state">
+              <span className="loading-paw">
+                🐾
+              </span>
+
+              <p>
+                starting guestbook.exe...
+              </p>
+
+              <small>
+                checking authentication
+              </small>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="guestbook-moderation">
+        <section className="moderation-window moderation-login-window">
+          <header className="window-titlebar">
+            <span>
+              🐾 guestbook.exe
+            </span>
+
+            <div className="window-controls">
+              <button type="button">
+                _
+              </button>
+
+              <button type="button">
+                □
+              </button>
+
+              <button type="button">
+                ×
+              </button>
+            </div>
+          </header>
+
+          <div className="moderation-content">
+            <div className="moderation-heading">
+              <div>
+                <p className="eyebrow">
+                  SYSTEM UTILITY
+                </p>
+
+                <h1>
+                  GUESTBOOK LOGIN
+                </h1>
+              </div>
+
+              <div className="paw">
+                🐾
+              </div>
+            </div>
+
+            <div className="login-terminal">
+              <p>
+                › guestbook.exe requires authorization
+              </p>
+
+              <p>
+                › moderator access only
+              </p>
+            </div>
+
+            <form
+              onSubmit={login}
+              className="moderation-login-form"
+            >
+              <label htmlFor="moderation-password">
+                PASSWORD
+              </label>
+
+              <input
+                id="moderation-password"
+                type="password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                placeholder="••••••••••••"
+                autoComplete="current-password"
+                autoFocus
+                disabled={loggingIn}
+              />
+
+              <button
+                type="submit"
+                className="moderation-login-button"
+                disabled={
+                  loggingIn || !password.trim()
+                }
+              >
+                {loggingIn
+                  ? "checking..."
+                  : "LOGIN ♡"}
+              </button>
+            </form>
+
+            {loginError && (
+              <p className="login-error">
+                {loginError}
+              </p>
+            )}
+
+            <div className="moderation-footer">
+              <span>
+                guestbook.exe
+              </span>
+
+              <span>
+                v1.0 ♡
+              </span>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="guestbook-moderation">
       <section className="moderation-window">
@@ -111,9 +319,21 @@ export default function GuestbookModeration() {
           </span>
 
           <div className="window-controls">
-            <button type="button">_</button>
-            <button type="button">□</button>
-            <button type="button">×</button>
+            <button type="button">
+              _
+            </button>
+
+            <button type="button">
+              □
+            </button>
+
+            <button
+              type="button"
+              onClick={logout}
+              title="Log out"
+            >
+              ×
+            </button>
           </div>
         </header>
 
@@ -146,7 +366,9 @@ export default function GuestbookModeration() {
             </div>
 
             <div>
-              <strong>♡</strong>
+              <strong>
+                ♡
+              </strong>
 
               <span>
                 KEEP IT CUTE
