@@ -19,4 +19,8 @@ npm run dev
 2. In Vercel, choose **Add New → Project** and import the repository.
 3. Keep the detected **Next.js** settings and select **Deploy**.
 
-No environment variables are required. The app is fully static.
+The core portfolio needs no environment variables and is fully static. The
+guestbook is optional: to turn it on, add a **Redis** store in Vercel
+(**Storage → Create Database → Redis**) and connect it to the project —
+this auto-injects `KV_REDIS_URL`. Without it, the guestbook window shows a
+"not wired up yet" message instead of breaking the page.

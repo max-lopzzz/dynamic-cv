@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { Project } from "./projects";
 
-export function Terminal({ projects, onOpenHobbies, onOpenPlayer }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void }) {
+export function Terminal({ projects, onOpenHobbies, onOpenPlayer, onOpenGuestbook }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void; onOpenGuestbook: () => void }) {
   const [lines, setLines] = useState(["Welcome to max.dev terminal v2.0", "Type help to explore."]);
   const [command, setCommand] = useState("");
 
@@ -13,12 +13,13 @@ export function Terminal({ projects, onOpenHobbies, onOpenPlayer }: { projects: 
     if (!input) return;
     if (input === "clear") { setLines([]); setCommand(""); return; }
     let reply = "command not found — try help";
-    if (input === "help") reply = "help · projects · status · hobbies · play · whoami · clear · open [project]";
+    if (input === "help") reply = "help · projects · status · hobbies · play · guestbook · whoami · clear · open [project]";
     if (input === "whoami") reply = "Maximiliano — CS student, software engineer, drummer, bead artist.";
     if (input === "projects") { reply = "scrolling to project archive…"; document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }
     if (input === "status") reply = projects.map((project) => `${project.name} [${project.progress}]`).join(" · ");
     if (input === "hobbies") { reply = "opening hobbies.exe…"; onOpenHobbies(); }
     if (input === "play") { reply = "cueing up Tom Sawyer…"; onOpenPlayer(); }
+    if (input === "guestbook" || input === "sign") { reply = "opening guestbook.exe — leave a note!"; onOpenGuestbook(); }
     const match = input.match(/^open\s+(.+)/);
     if (match) {
       const project = projects.find((item) => item.slug === match[1].replaceAll(" ", ""));

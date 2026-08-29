@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Window } from "./components/Window";
 import { Beep } from "./components/Beep";
 import { MusicPlayer } from "./components/MusicPlayer";
+import { Guestbook } from "./components/Guestbook";
 import { Terminal } from "./terminal";
 import { projects, repo } from "./projects";
 import { drumFill } from "./sound";
@@ -17,16 +18,18 @@ export default function Home() {
   const [about, setAbout] = useState(true);
   const [music, setMusic] = useState(false);
   const [hobbies, setHobbies] = useState(false);
+  const [guestbook, setGuestbook] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [egg, setEgg] = useState(false);
-  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25 });
-  const zCounter = useRef(26);
+  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25, guestbook: 26 });
+  const zCounter = useRef(27);
   const keyBuffer = useRef<string[]>([]);
 
   function focus(id: string) { setZMap((m) => ({ ...m, [id]: zCounter.current++ })); }
   function openHobbies() { setHobbies(true); focus("hobbies"); }
   function openPlayer() { setMusic(true); focus("player"); }
   function openTerminal() { setTerminalOpen(true); focus("terminal"); }
+  function openGuestbook() { setGuestbook(true); focus("guestbook"); }
 
   useEffect(() => {
     const enter = (e: KeyboardEvent) => { if (e.key === "Enter" && stage === "boot") setStage("login"); };
@@ -65,6 +68,7 @@ Press ENTER to continue_</pre></main>;
       <button onClick={() => (music ? setMusic(false) : openPlayer())}>♫<span>Music.exe</span></button>
       <button onClick={() => (hobbies ? setHobbies(false) : openHobbies())}>❖<span>Hobbies</span></button>
       <button onClick={() => (terminalOpen ? setTerminalOpen(false) : openTerminal())}>▤<span>Terminal</span></button>
+      <button onClick={() => (guestbook ? setGuestbook(false) : openGuestbook())}>📖<span>Guestbook</span></button>
     </aside>
     <Window id="portfolio" title="max_portfolio.exe" className="portfolio" zIndex={zMap.portfolio} onFocus={focus}>
       <div className="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
@@ -89,7 +93,8 @@ Press ENTER to continue_</pre></main>;
       </div>
     </Window>}
     {music && <Window id="player" title="tiny media player" className="player" zIndex={zMap.player} onFocus={focus} onClose={() => setMusic(false)} resizable={false}><MusicPlayer /></Window>}
-    {terminalOpen && <Window id="terminal" title="terminal.exe" className="terminal-window" zIndex={zMap.terminal} onFocus={focus} onClose={() => setTerminalOpen(false)}><Terminal projects={projects} onOpenHobbies={openHobbies} onOpenPlayer={openPlayer} /></Window>}
+    {terminalOpen && <Window id="terminal" title="terminal.exe" className="terminal-window" zIndex={zMap.terminal} onFocus={focus} onClose={() => setTerminalOpen(false)}><Terminal projects={projects} onOpenHobbies={openHobbies} onOpenPlayer={openPlayer} onOpenGuestbook={openGuestbook} /></Window>}
+    {guestbook && <Window id="guestbook" title="guestbook.exe" className="guestbook" zIndex={zMap.guestbook} onFocus={focus} onClose={() => setGuestbook(false)}><Guestbook /></Window>}
     <footer className="taskbar"><Beep>▣ Start</Beep><span>max_portfolio.exe</span><time>{clock}</time></footer>
     <div className="scanlines" /><div className="crt-roll" />
   </main>;
