@@ -10,4 +10,5 @@ export const projects: Project[] = [
   { name: "Pawmodoro", copy: "A kawaii Pomodoro timer for macOS — cat GIFs, task tracking, and shared focus rooms.", progress: "95%", slug: "pawmodoro" },
   { name: "One Man Rave", copy: "A first-person roguelite where you shoot your way back into the nightclub you drank away.", progress: "100%", slug: "OneManRave" },
   { name: "Pedro No Quiere Pagar Impuestos", copy: "A roguelite solitaire — samurai cat vs. invading dogs, fought one cooked dish at a time.", progress: "100%", slug: "pedro-no-quiere-pagar-impuestos" },
+  { name: "Sprint de Entrevista", copy: "Generates a custom multiple-choice interview-prep bank from a job description, your CV, and GitHub — practice, flashcards, mock exam, or explain-it-back mode.", progress: "100%", slug: "sprint-entrevista" },
 ];
