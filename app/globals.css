@@ -25,7 +25,7 @@ min-height: 100%;
 font-family: "Pixelify Sans", monospace;
 
 /* Cursor normal */
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 /* Cursor para elementos interactivos */
@@ -33,7 +33,7 @@ button,
 a,
 summary {
 font: inherit;
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* Cursor para campos de texto */
@@ -53,7 +53,7 @@ color: #c9ffb5;
 padding: 8vh 10vw;
 font: 28px/1.25 VT323, monospace;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 .boot pre {
@@ -72,7 +72,7 @@ background: #008080;
 display: grid;
 place-items: center;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 /* =========================
@@ -135,7 +135,7 @@ border: 1px outset #fff;
 background: #c0c0c0;
 font-weight: bold;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* =========================================================
@@ -168,7 +168,7 @@ overflow: hidden;
 background: #008080;
 color: #111;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 .wallpaper {
@@ -224,7 +224,7 @@ DESKTOP ICONS
 
   font-size: 36px;
 
-  cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+  cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .desktop-icons span {
@@ -360,7 +360,7 @@ box-shadow:
 inset -1px -1px #111,
 inset 1px 1px #fff;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .project98:hover {
@@ -415,7 +415,7 @@ font: 11px Arial, sans-serif;
 color: #000080;
 text-decoration: underline;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .project-links a:hover {
@@ -427,7 +427,7 @@ color: #111;
 text-decoration: none;
 font-size: 11px;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .project-featured {
@@ -458,7 +458,7 @@ padding: 7px;
 }
 
 summary {
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 details p {
@@ -478,7 +478,7 @@ display: inline-block;
 text-decoration: none;
 color: #111;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .kofi-cta .bevel:hover {
@@ -504,7 +504,7 @@ font-size: 13px;
 
 .about-body a {
 color: #000080;
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* =========================
@@ -546,7 +546,7 @@ margin: 0 0 8px;
 
 .hobby-card a {
 color: #000080;
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .beadart-embed {
@@ -593,7 +593,7 @@ font: 12px Arial, sans-serif;
 .player input[type="range"] {
 width: 100%;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* =========================
@@ -658,7 +658,7 @@ border: 0;
 padding: 2px 8px;
 font: inherit;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* =========================
@@ -705,7 +705,7 @@ height: 25px;
 padding: 2px 7px;
 font-size: 16px;
 line-height: 1;
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .gb-refresh:disabled {
@@ -756,7 +756,7 @@ min-height: 52px;
 .gb-form button {
 align-self: flex-start;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .gb-submit:disabled {
@@ -873,7 +873,7 @@ white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .taskbar-window:hover {
@@ -892,7 +892,7 @@ padding: 5px 8px;
 min-width: 62px;
 text-align: center;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 /* =========================
@@ -987,7 +987,7 @@ justify-content: center;
 background: var(--bg);
 color: var(--text);
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
+cursor: url("/assets/cursors/windows98-arrow.cur"), auto;
 }
 
 .moderation-window {
@@ -1027,7 +1027,7 @@ color: var(--text);
 font-family: inherit;
 font-weight: 700;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .window-controls button:active {
@@ -1159,7 +1159,7 @@ font-family: inherit;
 font-size: 10px;
 font-weight: 700;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .message-actions button:hover {
@@ -1281,7 +1281,7 @@ font-family: inherit;
 font-size: 10px;
 font-weight: 700;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .moderation-login-button:hover {
@@ -1534,7 +1534,7 @@ font: 11px Arial, sans-serif;
 .player-slider input {
 width: 100%;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 /* =========================================================
@@ -1708,7 +1708,7 @@ text-decoration: none;
 
 font: 11px Arial, sans-serif;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .project-details-actions a:hover {
@@ -1747,7 +1747,7 @@ text-decoration: underline;
 
 font: inherit;
 
-cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .project-details-button:hover {

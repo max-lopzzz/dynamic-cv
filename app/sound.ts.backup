@@ -17,9 +17,7 @@ export type WindowsSound = keyof typeof WINDOWS_SOUNDS;
 let audioContext: AudioContext | null = null;
 
 function getAudioContext() {
-  if (typeof window === "undefined") {
-    return null;
-  }
+  if (typeof window === "undefined") return null;
 
   if (!audioContext) {
     audioContext = new AudioContext();
@@ -30,26 +28,6 @@ function getAudioContext() {
   }
 
   return audioContext;
-}
-
-const audioCache: Partial<
-  Record<WindowsSound, HTMLAudioElement>
-> = {};
-
-function getAudio(sound: WindowsSound) {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  let audio = audioCache[sound];
-
-  if (!audio) {
-    audio = new Audio(WINDOWS_SOUNDS[sound]);
-    audio.preload = "auto";
-    audioCache[sound] = audio;
-  }
-
-  return audio;
 }
 
 function fallbackClick() {
@@ -63,11 +41,7 @@ function fallbackClick() {
   oscillator.type = "square";
   oscillator.frequency.value = 720;
 
-  gain.gain.setValueAtTime(
-    0.045,
-    ctx.currentTime
-  );
-
+  gain.gain.setValueAtTime(0.045, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(
     0.0001,
     ctx.currentTime + 0.055
@@ -84,58 +58,33 @@ export function playWindowsSound(
   sound: WindowsSound,
   volume = 0.45
 ) {
-  if (typeof window === "undefined") {
-    return;
-  }
+  if (typeof window === "undefined") return;
 
-  const audio = getAudio(sound);
+  const audio = new Audio(WINDOWS_SOUNDS[sound]);
 
-  if (!audio) {
-    return;
-  }
-
+  audio.preload = "auto";
   audio.volume = volume;
 
-  /*
-   * Si el audio ya estaba reproduciéndose,
-   * empezamos nuevamente desde el principio.
-   */
-  audio.currentTime = 0;
-
-  /*
-   * Importante:
-   * esperamos a que el navegador tenga una fuente
-   * reproducible antes de llamar a play().
-   */
-  const play = () => {
-    void audio.play().catch((error) => {
-      console.warn(
-        `Could not play Windows sound "${sound}":`,
-        error
-      );
-
+  audio.addEventListener(
+    "error",
+    () => {
+      // If an asset is missing, clicking should still make a sound.
       if (sound === "click") {
         fallbackClick();
       }
-    });
-  };
+    },
+    { once: true }
+  );
 
-  if (audio.readyState >= 2) {
-    play();
-  } else {
-    audio.addEventListener(
-      "canplay",
-      play,
-      { once: true }
-    );
-
-    audio.load();
-  }
+  void audio.play().catch(() => {
+    if (sound === "click") {
+      fallbackClick();
+    }
+  });
 }
 
 /**
- * Compatibility helper used by Beep.tsx
- * and Guestbook.tsx.
+ * Compatibility helper used by Beep.tsx and Guestbook.tsx.
  */
 export function beep() {
   playWindowsSound("click", 0.3);
@@ -158,21 +107,13 @@ export function drumFill(done?: () => void) {
 
     oscillator.type = "sine";
 
-    oscillator.frequency.setValueAtTime(
-      150,
-      time
-    );
-
+    oscillator.frequency.setValueAtTime(150, time);
     oscillator.frequency.exponentialRampToValueAtTime(
       45,
       time + 0.15
     );
 
-    gain.gain.setValueAtTime(
-      0.35,
-      time
-    );
-
+    gain.gain.setValueAtTime(0.35, time);
     gain.gain.exponentialRampToValueAtTime(
       0.001,
       time + 0.18
@@ -186,10 +127,7 @@ export function drumFill(done?: () => void) {
   };
 
   const snare = (time: number) => {
-    const bufferSize = Math.floor(
-      ctx.sampleRate * 0.12
-    );
-
+    const bufferSize = ctx.sampleRate * 0.12;
     const buffer = ctx.createBuffer(
       1,
       bufferSize,
@@ -205,21 +143,15 @@ export function drumFill(done?: () => void) {
     }
 
     const noise = ctx.createBufferSource();
-
     noise.buffer = buffer;
 
     const filter = ctx.createBiquadFilter();
-
     filter.type = "highpass";
     filter.frequency.value = 1000;
 
     const gain = ctx.createGain();
 
-    gain.gain.setValueAtTime(
-      0.25,
-      time
-    );
-
+    gain.gain.setValueAtTime(0.25, time);
     gain.gain.exponentialRampToValueAtTime(
       0.001,
       time + 0.12
@@ -247,8 +179,7 @@ export function drumFill(done?: () => void) {
   const start = ctx.currentTime;
 
   hits.forEach((offset, index) => {
-    const time =
-      start + offset / 1000;
+    const time = start + offset / 1000;
 
     if (index % 2 === 0) {
       kick(time);
