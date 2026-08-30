@@ -1,1423 +1,1356 @@
 @import url("https://fonts.googleapis.com/css2?family=VT323&family=Pixelify+Sans:wght@400;700&display=swap");
 
+:root {
+  --bg: #c0c0c0;
+  --bg-2: #dfdfdf;
+  --text: #111;
+  --headers: #000080;
+  --buttons: #c0c0c0;
+  --link: #000080;
+}
+
 * {
   box-sizing: border-box;
   border-radius: 0 !important;
-}
+  }
+
+/* =========================================================
+CUSTOM WINDOWS 98 CURSORS
+========================================================= */
 
 html,
 body {
-  margin: 0;
-  min-height: 100%;
-  font-family: "Pixelify Sans", monospace;
+margin: 0;
+min-height: 100%;
+font-family: "Pixelify Sans", monospace;
+
+/* Cursor normal */
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
+/* Cursor para elementos interactivos */
 button,
-a {
-  font: inherit;
-  cursor: pointer;
+a,
+summary {
+font: inherit;
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
-/* =========================
-   BOOT
-   ========================= */
+/* Cursor para campos de texto */
+input,
+textarea {
+cursor: url("/assets/cursors/Windows 98 beam.cur"), text;
+}
+
+/* =========================================================
+BOOT
+========================================================= */
 
 .boot {
-  height: 100vh;
-  background: #030303;
-  color: #c9ffb5;
-  padding: 8vh 10vw;
-  font: 28px/1.25 VT323, monospace;
+height: 100vh;
+background: #030303;
+color: #c9ffb5;
+padding: 8vh 10vw;
+font: 28px/1.25 VT323, monospace;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
 .boot pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 0;
+white-space: pre-wrap;
+word-break: break-word;
+margin: 0;
 }
 
 /* =========================
-   LOGIN
-   ========================= */
+LOGIN
+========================= */
 
 .login {
-  min-height: 100vh;
-  background: #008080;
-  display: grid;
-  place-items: center;
+min-height: 100vh;
+background: #008080;
+display: grid;
+place-items: center;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
 /* =========================
-   WINDOWS
-   ========================= */
+WINDOWS
+========================= */
 
 .bevel,
 .window {
-  background: #c0c0c0;
-  box-shadow:
-    inset -1px -1px #0a0a0a,
-    inset 1px 1px #fff,
-    inset -2px -2px #808080,
-    inset 2px 2px #dedede;
+background: #c0c0c0;
+box-shadow:
+inset -1px -1px #0a0a0a,
+inset 1px 1px #fff,
+inset -2px -2px #808080,
+inset 2px 2px #dedede;
 }
 
 .bevel {
-  border: 0;
-  padding: 5px 14px;
+border: 0;
+padding: 5px 14px;
 }
 
 .window {
-  position: absolute;
-  z-index: 20;
-  border: 2px solid #fff;
-  box-shadow:
-    inset -1px -1px #111,
-    inset 1px 1px #fff,
-    inset -2px -2px #777,
-    inset 2px 2px #ddd;
+position: absolute;
+z-index: 20;
+border: 2px solid #fff;
+box-shadow:
+inset -1px -1px #111,
+inset 1px 1px #fff,
+inset -2px -2px #777,
+inset 2px 2px #ddd;
 }
 
+/* =========================================================
+WINDOW TITLE BAR
+========================================================= */
+
 .titlebar {
-  height: 25px;
-  background: linear-gradient(90deg, #000080, #1084d0);
-  color: #fff;
-  padding: 3px 5px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: bold;
-  cursor: grab;
+height: 25px;
+background: linear-gradient(90deg, #000080, #1084d0);
+color: #fff;
+padding: 3px 5px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-weight: bold;
+
+/* Windows 98 move cursor */
+cursor: url("/assets/cursors/Windows 98 move.cur"), move;
 }
 
 .titlebar:active {
-  cursor: grabbing;
+cursor: url("/assets/cursors/Windows 98 move.cur"), move;
 }
 
 .titlebar button {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 1px outset #fff;
-  background: #c0c0c0;
-  font-weight: bold;
+width: 18px;
+height: 18px;
+padding: 0;
+border: 1px outset #fff;
+background: #c0c0c0;
+font-weight: bold;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
+/* =========================================================
+RESIZE HANDLE
+========================================================= */
+
 .resize-handle {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 14px;
-  height: 14px;
-  cursor: nwse-resize;
-  background: linear-gradient(
-    135deg,
-    transparent 50%,
-    #808080 50%
-  );
+position: absolute;
+right: 0;
+bottom: 0;
+width: 14px;
+height: 14px;
+
+cursor: url("/assets/cursors/Windows 98 Size NWSE.cur"), nwse-resize;
+
+background: linear-gradient(
+135deg,
+transparent 50%,
+#808080 50%
+);
 }
 
 /* =========================
-   DESKTOP
-   ========================= */
+DESKTOP
+========================= */
 
 .desktop {
-  height: 100vh;
-  overflow: hidden;
-  background: #008080;
-  color: #111;
+height: 100vh;
+overflow: hidden;
+background: #008080;
+color: #111;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
 .wallpaper {
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    #008080 0 50%,
-    #087977 50%
-  );
-  opacity: 0.9;
+position: fixed;
+inset: 0;
+z-index: 0;
+
+background-image: url("/assets/wallpaper/Bliss.jpg");
+background-size: cover;
+background-position: center center;
+background-repeat: no-repeat;
+
+opacity: 1;
 }
 
 /* =========================
-   DESKTOP ICONS
-   ========================= */
+DESKTOP ICONS
+========================= */
 
 .desktop-icons {
   position: fixed;
   z-index: 10;
+
   top: 18px;
   left: 16px;
+  bottom: 48px;
+
   display: grid;
-  gap: 17px;
+  grid-template-columns: repeat(2, 76px);
+  grid-auto-rows: minmax(66px, 1fr);
+
+  column-gap: 10px;
+  row-gap: 6px;
+
+  align-content: start;
 }
 
 .desktop-icons a,
 .desktop-icons button {
+  width: 76px;
+  min-height: 66px;
+
   border: 0;
   background: transparent;
   color: white;
   text-shadow: 1px 1px #000;
   text-decoration: none;
+
   display: grid;
   gap: 2px;
   justify-items: center;
+  align-content: start;
+
   font-size: 36px;
+
+  cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .desktop-icons span {
   font-size: 12px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.desktop-icons .asset-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  image-rendering: auto;
+  flex: 0 0 auto;
+  filter: drop-shadow(1px 1px 0 #000);
+}
+
+.desktop-icons a:hover .asset-icon,
+.desktop-icons button:hover .asset-icon {
+  transform: translateY(-1px);
 }
 
 /* =========================
-   PORTFOLIO
-   ========================= */
+PORTFOLIO
+========================= */
 
 .portfolio {
-  left: 15vw;
-  top: 7vh;
-  width: min(720px, 70vw);
-  height: min(78vh, 700px);
+left: 15vw;
+top: 7vh;
+width: min(720px, 70vw);
+height: min(78vh, 700px);
 }
 
 .menu {
-  padding: 4px 8px;
-  border-bottom: 1px solid #888;
-  display: flex;
-  gap: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
+padding: 4px 8px;
+border-bottom: 1px solid #888;
+display: flex;
+gap: 20px;
+font-family: Arial, sans-serif;
+font-size: 13px;
 }
 
 .portfolio-content {
-  height: calc(100% - 47px);
-  overflow: auto;
-  background:
-    #e8e6de
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath fill='%23c7e0e1' fill-opacity='.4' d='M0 0h2v2H0zM3 3h2v2H3z'/%3E%3C/svg%3E");
-  padding: 16px;
+height: calc(100% - 47px);
+overflow: auto;
+background:
+#e8e6de
+url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath fill='%23c7e0e1' fill-opacity='.4' d='M0 0h2v2H0zM3 3h2v2H3z'/%3E%3C/svg%3E");
+padding: 16px;
 }
 
 .banner {
-  background: #2e6195;
-  color: #fff;
-  padding: 19px;
-  border: 3px ridge #fff;
-  text-shadow: 2px 2px #103452;
+background: #2e6195;
+color: #fff;
+padding: 19px;
+border: 3px ridge #fff;
+text-shadow: 2px 2px #103452;
 }
 
 .banner p {
-  margin: 0;
-  font-size: 13px;
+margin: 0;
+font-size: 13px;
 }
 
 .banner h1 {
-  margin: 2px 0;
-  font: 48px VT323, monospace;
+margin: 2px 0;
+font: 48px VT323, monospace;
 }
 
 .intro98 {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  background: #fffde7;
-  border: 2px inset #fff;
-  padding: 12px;
-  margin: 14px 0;
+display: flex;
+gap: 15px;
+align-items: center;
+background: #fffde7;
+border: 2px inset #fff;
+padding: 12px;
+margin: 14px 0;
 }
 
 .pixel-face {
-  font: 48px VT323, monospace;
-  color: #f08a2b;
+font: 48px VT323, monospace;
+color: #f08a2b;
 }
 
 .portfolio-content h2 {
-  font-size: 17px;
-  border-bottom: 2px dotted #555;
-  padding-bottom: 4px;
+font-size: 17px;
+border-bottom: 2px dotted #555;
+padding-bottom: 4px;
 }
 
 .section-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px;
+display: flex;
+align-items: end;
+justify-content: space-between;
+gap: 12px;
 }
 
 .section-heading h2 {
-  margin-bottom: 2px;
+margin-bottom: 2px;
 }
 
 .section-heading p {
-  margin: 0 0 8px;
-  font: 11px Arial, sans-serif;
-  color: #555;
+margin: 0 0 8px;
+font: 11px Arial, sans-serif;
+color: #555;
 }
 
 .section-heading > span {
-  font: 10px Arial, sans-serif;
-  color: #555;
-  white-space: nowrap;
+font: 10px Arial, sans-serif;
+color: #555;
+white-space: nowrap;
 }
 
 /* =========================
-   PROJECTS
-   ========================= */
+PROJECTS
+========================= */
 
 .projects {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.project-filters {
-  display: flex;
-  gap: 6px;
-  margin: 10px 0;
-  flex-wrap: wrap;
-}
-
-.project-filters button {
-  background: #c0c0c0;
-  border: 0;
-  padding: 4px 10px;
-  font: 12px "Pixelify Sans", monospace;
-  box-shadow:
-    inset -1px -1px #111,
-    inset 1px 1px #fff,
-    inset -2px -2px #777,
-    inset 2px 2px #ddd;
-}
-
-.project-filters button:hover {
-  background: #d9d9d9;
-}
-
-.project-filters button.active {
-  background: #000080;
-  color: #fff;
-  box-shadow:
-    inset 1px 1px #111,
-    inset -1px -1px #fff;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
 }
 
 .project98 {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #111;
-  text-decoration: none;
-  background: #c0c0c0;
-  padding: 10px;
-  box-shadow:
-    inset -1px -1px #111,
-    inset 1px 1px #fff;
+display: flex;
+flex-direction: column;
+gap: 8px;
+color: #111;
+text-decoration: none;
+background: #c0c0c0;
+padding: 10px;
+box-shadow:
+inset -1px -1px #111,
+inset 1px 1px #fff;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .project98:hover {
-  background: #d9d9d9;
+background: #d9d9d9;
 }
 
 .project98 p {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  min-height: 42px;
+margin: 0;
+font-family: Arial, sans-serif;
+font-size: 12px;
+min-height: 42px;
 }
 
 .project-tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
 }
 
 .project-tech span {
-  padding: 2px 5px;
-  background: #e8e8e8;
-  border: 1px solid #999;
-  font: 10px Arial, sans-serif;
+padding: 2px 5px;
+background: #e8e8e8;
+border: 1px solid #999;
+font: 10px Arial, sans-serif;
 }
 
 .meter {
-  height: 12px;
-  background: #fff;
-  border: 2px inset #aaa;
+height: 12px;
+background: #fff;
+border: 2px inset #aaa;
 }
 
 .meter i {
-  display: block;
-  height: 100%;
-  background: #000080;
+display: block;
+height: 100%;
+background: #000080;
 }
 
 .project98 small {
-  font: 11px Arial, sans-serif;
+font: 11px Arial, sans-serif;
 }
 
 .project-links,
 .project-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 2px;
-  font: 11px Arial, sans-serif;
+display: flex;
+gap: 8px;
+margin-top: 2px;
+font: 11px Arial, sans-serif;
 }
 
 .project-links a {
-  color: #000080;
-  text-decoration: underline;
+color: #000080;
+text-decoration: underline;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .project-links a:hover {
-  color: #800080;
+color: #800080;
 }
 
 .project-actions .bevel {
-  color: #111;
-  text-decoration: none;
-  font-size: 11px;
+color: #111;
+text-decoration: none;
+font-size: 11px;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .project-featured {
-  min-height: 205px;
+min-height: 205px;
 }
 
 /* =========================
-   PROJECT DETAIL PAGE
-   ========================= */
-
-.project-page {
-  min-height: 100vh;
-  background: #008080;
-  padding: 6vh 6vw;
-  color: #111;
-}
-
-.project-back {
-  display: inline-block;
-  margin-bottom: 16px;
-  color: #fff;
-  text-decoration: none;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-}
-
-.project-back:hover {
-  text-decoration: underline;
-}
-
-.project-window {
-  max-width: 720px;
-  margin: 0 auto;
-  background: #c0c0c0;
-  border: 2px solid #fff;
-  box-shadow:
-    inset -1px -1px #111,
-    inset 1px 1px #fff,
-    inset -2px -2px #777,
-    inset 2px 2px #ddd;
-}
-
-.project-body {
-  padding: 18px;
-  font-family: Arial, sans-serif;
-}
-
-.project-screenshot {
-  width: 100%;
-  display: block;
-  margin-bottom: 14px;
-  border: 2px inset #aaa;
-}
-
-.project-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.project-heading h1 {
-  margin: 0;
-  font-family: "Pixelify Sans", monospace;
-  font-size: 26px;
-}
-
-.project-status {
-  font-size: 11px;
-  padding: 2px 6px;
-  background: #e8e8e8;
-  border: 1px solid #999;
-  white-space: nowrap;
-}
-
-.project-body .project-tech {
-  margin: 10px 0;
-}
-
-.project-body .meter {
-  margin-bottom: 18px;
-}
-
-.project-section {
-  margin: 18px 0;
-}
-
-.project-section h2 {
-  font-family: "Pixelify Sans", monospace;
-  font-size: 16px;
-  margin: 0 0 6px;
-  border-bottom: 2px solid #999;
-  padding-bottom: 4px;
-}
-
-.project-section p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.project-section ul {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.project-detail-links {
-  display: flex;
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.project-detail-links .bevel {
-  text-decoration: none;
-  color: #111;
-  font-size: 13px;
-}
-
-.project-detail-links .bevel:hover {
-  background: #d9d9d9;
-}
-
-/* =========================
-   SERVICES + FAQ
-   ========================= */
+SERVICES + FAQ
+========================= */
 
 .services {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
 }
 
 .services span {
-  padding: 7px;
-  background: #d7d7d7;
-  border: 2px outset #fff;
+padding: 7px;
+background: #d7d7d7;
+border: 2px outset #fff;
 }
 
 details {
-  margin: 7px 0;
-  border: 2px outset #fff;
-  background: #d8d8d8;
-  padding: 7px;
+margin: 7px 0;
+border: 2px outset #fff;
+background: #d8d8d8;
+padding: 7px;
 }
 
 summary {
-  cursor: pointer;
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 details p {
-  background: #fff;
-  padding: 8px;
-  margin: 8px 0 0;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
+background: #fff;
+padding: 8px;
+margin: 8px 0 0;
+font-family: Arial, sans-serif;
+font-size: 13px;
 }
 
 .kofi-cta {
-  margin: 14px 0 4px;
+margin: 14px 0 4px;
 }
 
 .kofi-cta .bevel {
-  display: inline-block;
-  text-decoration: none;
-  color: #111;
+display: inline-block;
+text-decoration: none;
+color: #111;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .kofi-cta .bevel:hover {
-  background: #d9d9d9;
+background: #d9d9d9;
 }
 
 /* =========================
-   ABOUT
-   ========================= */
+ABOUT
+========================= */
 
 .about {
-  right: 6vw;
-  top: 17vh;
-  width: 260px;
+right: 6vw;
+top: 17vh;
+width: 260px;
 }
 
 .about-body,
 .player {
-  padding: 13px;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
+padding: 13px;
+font-family: Arial, sans-serif;
+font-size: 13px;
 }
 
 .about-body a {
-  color: #000080;
+color: #000080;
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 /* =========================
-   NOW
-   ========================= */
-
-.now {
-  right: 6vw;
-  top: 42vh;
-  width: min(260px, 80vw);
-}
-
-.now-body {
-  padding: 13px;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-}
-
-.now-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: baseline;
-}
-
-.now-row b {
-  min-width: 92px;
-  flex-shrink: 0;
-}
-
-.now-updated {
-  margin: 10px 0 0;
-  font-size: 11px;
-  color: #555;
-}
-
-/* =========================
-   HOBBIES
-   ========================= */
+HOBBIES
+========================= */
 
 .hobbies {
-  left: 20vw;
-  top: 12vh;
-  width: min(560px, 80vw);
-  height: min(60vh, 480px);
+left: 20vw;
+top: 12vh;
+width: min(560px, 80vw);
+height: min(60vh, 480px);
 }
 
 .hobbies-body {
-  padding: 14px;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  display: grid;
-  gap: 14px;
-  height: calc(100% - 25px);
-  overflow: auto;
+padding: 14px;
+font-family: Arial, sans-serif;
+font-size: 13px;
+display: grid;
+gap: 14px;
+height: calc(100% - 25px);
+overflow: auto;
 }
 
 .hobby-card {
-  background: #fffde7;
-  border: 2px inset #fff;
-  padding: 12px;
+background: #fffde7;
+border: 2px inset #fff;
+padding: 12px;
 }
 
 .hobby-card b {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
+display: block;
+margin-bottom: 6px;
+font-size: 14px;
 }
 
 .hobby-card p {
-  margin: 0 0 8px;
+margin: 0 0 8px;
 }
 
 .hobby-card a {
-  color: #000080;
+color: #000080;
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .beadart-embed {
-  width: 100%;
-  height: 220px;
-  border: 2px inset #fff;
-  margin-bottom: 8px;
-  background: #fff;
+width: 100%;
+height: 220px;
+border: 2px inset #fff;
+margin-bottom: 8px;
+background: #fff;
 }
 
 /* =========================
-   MUSIC PLAYER
-   ========================= */
+MUSIC PLAYER
+========================= */
 
 .player {
-  right: 8vw;
-  bottom: 80px;
-  padding: 12px;
-  display: grid;
-  gap: 8px;
+right: 8vw;
+bottom: 80px;
+padding: 12px;
+display: grid;
+gap: 8px;
 }
 
 .track-title {
-  margin: 0;
-  font-size: 13px;
+margin: 0;
+font-size: 13px;
 }
 
 .track-title small {
-  display: block;
-  color: #444;
-  font-weight: normal;
+display: block;
+color: #444;
+font-weight: normal;
 }
 
 .player-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+display: flex;
+align-items: center;
+gap: 10px;
 }
 
 .player .time {
-  font: 12px Arial, sans-serif;
+font: 12px Arial, sans-serif;
 }
 
 .player input[type="range"] {
-  width: 100%;
+width: 100%;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 /* =========================
-   TERMINAL
-   ========================= */
+TERMINAL
+========================= */
 
 .terminal-window {
-  left: 10vw;
-  top: 15vh;
-  width: min(600px, 80vw);
-  height: min(50vh, 420px);
+left: 10vw;
+top: 15vh;
+width: min(600px, 80vw);
+height: min(50vh, 420px);
 }
 
 .terminal-window .terminal {
-  height: calc(100% - 25px);
-  display: flex;
+height: calc(100% - 25px);
+display: flex;
 }
 
 .terminal-body {
-  flex: 1;
-  overflow: auto;
-  background: #000;
-  color: #0f0;
-  font: 16px VT323, monospace;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
+flex: 1;
+overflow: auto;
+background: #000;
+color: #0f0;
+font: 16px VT323, monospace;
+padding: 10px;
+display: flex;
+flex-direction: column;
 }
 
 .terminal-body p {
-  margin: 2px 0;
-  word-break: break-word;
-  white-space: pre-wrap;
+margin: 2px 0;
+word-break: break-word;
+white-space: pre-wrap;
 }
 
 .terminal-body form {
-  display: flex;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 6px;
+display: flex;
+gap: 6px;
+margin-top: auto;
+padding-top: 6px;
 }
 
 .terminal-body label {
-  color: #0f0;
+color: #0f0;
 }
 
 .terminal-body input {
-  flex: 1;
-  background: #000;
-  color: #0f0;
-  border: 1px solid #0f0;
-  font: inherit;
-  padding: 2px 4px;
+flex: 1;
+background: #000;
+color: #0f0;
+border: 1px solid #0f0;
+font: inherit;
+padding: 2px 4px;
+
+cursor: url("/assets/cursors/Windows 98 beam.cur"), text;
 }
 
 .terminal-body button {
-  background: #0f0;
-  color: #000;
-  border: 0;
-  padding: 2px 8px;
-  font: inherit;
+background: #0f0;
+color: #000;
+border: 0;
+padding: 2px 8px;
+font: inherit;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 /* =========================
-   GUESTBOOK
-   ========================= */
+GUESTBOOK
+========================= */
 
-.guestbook{left:24vw;top:10vh;width:min(420px,84vw);height:min(66vh,540px)}
-
-.guestbook-body{
-  padding:14px;
-  font-family:Arial,sans-serif;
-  font-size:13px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  height:calc(100% - 25px);
+.guestbook {
+left: 24vw;
+top: 10vh;
+width: min(420px, 84vw);
+height: min(66vh, 540px);
 }
 
-.gb-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
+.guestbook-body {
+padding: 14px;
+font-family: Arial, sans-serif;
+font-size: 13px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+height: calc(100% - 25px);
 }
 
-.gb-intro{
-  margin:0;
+.gb-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 10px;
 }
 
-.gb-subtitle{
-  margin:3px 0 0;
-  color:#666;
-  font-size:11px;
+.gb-intro {
+margin: 0;
 }
 
-.gb-refresh{
-  min-width:28px;
-  height:25px;
-  padding:2px 7px;
-  font-size:16px;
-  line-height:1;
+.gb-subtitle {
+margin: 3px 0 0;
+color: #666;
+font-size: 11px;
 }
 
-.gb-refresh:disabled{
-  cursor:default;
-  opacity:.6;
+.gb-refresh {
+min-width: 28px;
+height: 25px;
+padding: 2px 7px;
+font-size: 16px;
+line-height: 1;
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
-.gb-form{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
+.gb-refresh:disabled {
+cursor: url("/assets/cursors/Windows 98 no.cur"), not-allowed;
+opacity: 0.6;
 }
 
-.gb-form label{
-  display:flex;
-  flex-direction:column;
-  gap:3px;
+.gb-form {
+display: flex;
+flex-direction: column;
+gap: 7px;
 }
 
-.gb-form label>span{
-  font-size:11px;
-  color:#444;
-  text-transform:lowercase;
+.gb-form label {
+display: flex;
+flex-direction: column;
+gap: 3px;
+}
+
+.gb-form label > span {
+font-size: 11px;
+color: #444;
+text-transform: lowercase;
 }
 
 .gb-form input,
-.gb-form textarea{
-  font:inherit;
-  padding:6px;
-  border:2px inset #fff;
-  background:#fff;
-  color:#111;
+.gb-form textarea {
+font: inherit;
+padding: 6px;
+border: 2px inset #fff;
+background: #fff;
+color: #111;
+
+cursor: url("/assets/cursors/Windows 98 beam.cur"), text;
 }
 
 .gb-form input:focus,
-.gb-form textarea:focus{
-  outline:1px dotted #000080;
-  outline-offset:-3px;
+.gb-form textarea:focus {
+outline: 1px dotted #000080;
+outline-offset: -3px;
 }
 
-.gb-form textarea{
-  resize:vertical;
-  min-height:52px;
+.gb-form textarea {
+resize: vertical;
+min-height: 52px;
 }
 
-.gb-form button{
-  align-self:flex-start;
+.gb-form button {
+align-self: flex-start;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
-.gb-submit:disabled{
-  color:#777;
-  cursor:default;
+.gb-submit:disabled {
+color: #777;
+cursor: url("/assets/cursors/Windows 98 no.cur"), not-allowed;
 }
 
-.gb-counter{
-  align-self:flex-end;
-  margin-top:-2px;
-  color:#666;
-  font-size:10px;
+.gb-counter {
+align-self: flex-end;
+margin-top: -2px;
+color: #666;
+font-size: 10px;
 }
 
-.gb-honeypot{
-  position:absolute!important;
-  left:-9999px!important;
-  width:1px;
-  height:1px;
-  overflow:hidden;
+.gb-honeypot {
+position: absolute !important;
+left: -9999px !important;
+width: 1px;
+height: 1px;
+overflow: hidden;
 }
 
-.gb-note{
-  margin:0;
-  color:#7a1f1f;
-  font-size:12px;
-  line-height:1.3;
+.gb-note {
+margin: 0;
+color: #7a1f1f;
+font-size: 12px;
+line-height: 1.3;
 }
 
-.gb-success{
-  color:#176b2b;
+.gb-success {
+color: #176b2b;
 }
 
-.gb-rate-limit{
-  color:#7a4d00;
+.gb-rate-limit {
+color: #7a4d00;
 }
 
-.gb-empty{
-  margin:0;
-  color:#555;
-  font-style:italic;
+.gb-empty {
+margin: 0;
+color: #555;
+font-style: italic;
 }
 
-.gb-entries{
-  flex:1;
-  min-height:0;
-  overflow:auto;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  border-top:2px groove #fff;
-  padding-top:8px;
+.gb-entries {
+flex: 1;
+min-height: 0;
+overflow: auto;
+display: flex;
+flex-direction: column;
+gap: 8px;
+border-top: 2px groove #fff;
+padding-top: 8px;
 }
 
-.gb-entry{
-  background:#fffde7;
-  border:2px inset #fff;
-  padding:8px;
+.gb-entry {
+background: #fffde7;
+border: 2px inset #fff;
+padding: 8px;
 }
 
-.gb-entry-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  gap:8px;
-  margin-bottom:3px;
+.gb-entry-head {
+display: flex;
+justify-content: space-between;
+align-items: baseline;
+gap: 8px;
+margin-bottom: 3px;
 }
 
-.gb-entry-head b{
-  color:#000080;
+.gb-entry-head b {
+color: #000080;
 }
 
-.gb-entry-head time{
-  color:#666;
-  font-size:10px;
-  white-space:nowrap;
+.gb-entry-head time {
+color: #666;
+font-size: 10px;
+white-space: nowrap;
 }
 
-.gb-entry p{
-  margin:0;
-  word-break:break-word;
-  line-height:1.35;
+.gb-entry p {
+margin: 0;
+word-break: break-word;
+line-height: 1.35;
 }
 
 /* =========================
-   TASKBAR
-   ========================= */
+TASKBAR
+========================= */
 
 .taskbar {
-  position: fixed;
-  z-index: 50;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 42px;
-  background: #c0c0c0;
-  border-top: 2px outset #fff;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px;
+position: fixed;
+z-index: 50;
+bottom: 0;
+left: 0;
+right: 0;
+height: 42px;
+background: #c0c0c0;
+border-top: 2px outset #fff;
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 4px;
 }
 
 .taskbar-window {
-  border: 2px outset #fff;
-  background: #c0c0c0;
-  color: #111;
-  padding: 4px 8px;
-  min-width: 140px;
-  max-width: 190px;
-  text-align: left;
-  font: 13px Arial, sans-serif;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+border: 2px outset #fff;
+background: #c0c0c0;
+color: #111;
+padding: 4px 8px;
+min-width: 140px;
+max-width: 190px;
+text-align: left;
+font: 13px Arial, sans-serif;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .taskbar-window:hover {
-  background: #d9d9d9;
+background: #d9d9d9;
 }
 
 .taskbar-window:active {
-  border: 2px inset #fff;
+border: 2px inset #fff;
 }
 
 .taskbar time {
-  margin-left: auto;
-  font: 13px Arial, sans-serif;
-  border: 2px inset #fff;
-  padding: 5px 8px;
-  min-width: 62px;
-  text-align: center;
+margin-left: auto;
+font: 13px Arial, sans-serif;
+border: 2px inset #fff;
+padding: 5px 8px;
+min-width: 62px;
+text-align: center;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
 /* =========================
-   KONAMI EGG
-   ========================= */
+KONAMI EGG
+========================= */
 
 .egg {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
+position: fixed;
+inset: 0;
+z-index: 2147483647;
+pointer-events: none;
+display: flex;
+justify-content: center;
 }
 
 .egg-toast {
-  margin-top: 14vh;
-  height: fit-content;
-  background: #000;
-  color: #0f0;
-  border: 2px solid #0f0;
-  padding: 10px 18px;
-  font: 20px VT323, monospace;
-  animation: egg-pop 0.3s ease;
+margin-top: 14vh;
+height: fit-content;
+background: #000;
+color: #0f0;
+border: 2px solid #0f0;
+padding: 10px 18px;
+font: 20px VT323, monospace;
+animation: egg-pop 0.3s ease;
 }
 
 .egg-note {
-  position: absolute;
-  top: -40px;
-  font-size: 28px;
-  color: #fff;
-  text-shadow: 1px 1px #000;
-  animation: fall 1.8s ease-in forwards;
+position: absolute;
+top: -40px;
+font-size: 28px;
+color: #fff;
+text-shadow: 1px 1px #000;
+animation: fall 1.8s ease-in forwards;
 }
 
 .shake {
-  animation: shake 0.4s;
+animation: shake 0.4s;
 }
 
 @keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(25deg);
-    opacity: 0;
-  }
+to {
+transform: translateY(110vh) rotate(25deg);
+opacity: 0;
+}
 }
 
 @keyframes egg-pop {
-  from {
-    transform: scale(0.6);
-    opacity: 0;
-  }
+from {
+transform: scale(0.6);
+opacity: 0;
+}
 
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+to {
+transform: scale(1);
+opacity: 1;
+}
 }
 
 @keyframes shake {
-  10%,
-  90% {
-    transform: translateX(-1px);
-  }
+10%,
+90% {
+transform: translateX(-1px);
+}
 
-  20%,
-  80% {
-    transform: translateX(2px);
-  }
+20%,
+80% {
+transform: translateX(2px);
+}
 
-  30%,
-  50%,
-  70% {
-    transform: translateX(-4px);
-  }
+30%,
+50%,
+70% {
+transform: translateX(-4px);
+}
 
-  40%,
-  60% {
-    transform: translateX(4px);
-  }
+40%,
+60% {
+transform: translateX(4px);
+}
 }
 
 /* =========================
-   GUESTBOOK MODERATION
-   ========================= */
+GUESTBOOK MODERATION
+========================= */
 
 .guestbook-moderation {
-  min-height: 100vh;
-  padding: 32px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  color: var(--text);
+min-height: 100vh;
+padding: 32px 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: var(--bg);
+color: var(--text);
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), auto;
 }
 
 .moderation-window {
-  width: min(760px, 100%);
-  border: 2px solid var(--text);
-  background: var(--bg-2);
-  box-shadow: 7px 7px 0 var(--text);
+width: min(760px, 100%);
+border: 2px solid var(--text);
+background: var(--bg-2);
+box-shadow: 7px 7px 0 var(--text);
 }
 
 .window-titlebar {
-  min-height: 34px;
-  padding: 5px 7px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--headers);
-  color: var(--bg);
-  border-bottom: 2px solid var(--text);
-  font-weight: 700;
-  font-size: 13px;
+min-height: 34px;
+padding: 5px 7px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: var(--headers);
+color: var(--bg);
+border-bottom: 2px solid var(--text);
+font-weight: 700;
+font-size: 13px;
+
+cursor: url("/assets/cursors/Windows 98 move.cur"), move;
 }
 
 .window-controls {
-  display: flex;
-  gap: 4px;
+display: flex;
+gap: 4px;
 }
 
 .window-controls button {
-  width: 24px;
-  height: 22px;
-  padding: 0;
-  border: 1px solid var(--text);
-  background: var(--buttons);
-  color: var(--text);
-  font-family: inherit;
-  font-weight: 700;
-  cursor: pointer;
+width: 24px;
+height: 22px;
+padding: 0;
+border: 1px solid var(--text);
+background: var(--buttons);
+color: var(--text);
+font-family: inherit;
+font-weight: 700;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .window-controls button:active {
-  transform: translate(1px, 1px);
+transform: translate(1px, 1px);
 }
 
 .moderation-content {
-  padding: 18px;
+padding: 18px;
 }
 
 .moderation-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 16px;
 }
 
 .eyebrow {
-  margin: 0 0 4px;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  opacity: 0.65;
+margin: 0 0 4px;
+font-size: 9px;
+letter-spacing: 0.12em;
+opacity: 0.65;
 }
 
 .moderation-heading h1 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.2;
+margin: 0;
+font-size: 18px;
+line-height: 1.2;
 }
 
 .paw {
-  font-size: 28px;
+font-size: 28px;
 }
 
 .moderation-stats {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+display: flex;
+gap: 10px;
+margin-bottom: 12px;
 }
 
 .moderation-stats > div {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid var(--text);
-  background: var(--bg);
-  text-align: center;
+flex: 1;
+padding: 10px;
+border: 1px solid var(--text);
+background: var(--bg);
+text-align: center;
 }
 
 .moderation-stats strong,
 .moderation-stats span {
-  display: block;
+display: block;
 }
 
 .moderation-stats strong {
-  font-size: 20px;
+font-size: 20px;
 }
 
 .moderation-stats span {
-  margin-top: 3px;
-  font-size: 9px;
-  letter-spacing: 0.08em;
+margin-top: 3px;
+font-size: 9px;
+letter-spacing: 0.08em;
 }
 
 .terminal-status {
-  margin-bottom: 14px;
-  padding: 7px 9px;
-  border: 1px dashed var(--text);
-  font-size: 10px;
-  opacity: 0.75;
+margin-bottom: 14px;
+padding: 7px 9px;
+border: 1px dashed var(--text);
+font-size: 10px;
+opacity: 0.75;
 }
 
 .terminal-status span {
-  font-weight: 700;
+font-weight: 700;
 }
 
 .message-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+display: flex;
+flex-direction: column;
+gap: 12px;
 }
 
 .moderation-card {
-  padding: 13px;
-  border: 1px solid var(--text);
-  background: var(--bg);
-  box-shadow: 3px 3px 0 var(--text);
+padding: 13px;
+border: 1px solid var(--text);
+background: var(--bg);
+box-shadow: 3px 3px 0 var(--text);
 }
 
 .message-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+display: flex;
+align-items: baseline;
+justify-content: space-between;
+gap: 12px;
+margin-bottom: 10px;
 }
 
 .message-author {
-  font-size: 13px;
-  font-weight: 700;
+font-size: 13px;
+font-weight: 700;
 }
 
 .message-header time {
-  flex-shrink: 0;
-  font-size: 9px;
-  opacity: 0.55;
+flex-shrink: 0;
+font-size: 9px;
+opacity: 0.55;
 }
 
 .message-body {
-  padding: 10px;
-  border-left: 2px solid var(--headers);
-  font-size: 13px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+padding: 10px;
+border-left: 2px solid var(--headers);
+font-size: 13px;
+line-height: 1.5;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
 }
 
 .message-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
+display: flex;
+gap: 8px;
+margin-top: 12px;
 }
 
 .message-actions button {
-  padding: 6px 10px;
-  border: 1px solid var(--text);
-  background: var(--buttons);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
+padding: 6px 10px;
+border: 1px solid var(--text);
+background: var(--buttons);
+color: var(--text);
+font-family: inherit;
+font-size: 10px;
+font-weight: 700;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .message-actions button:hover {
-  background: var(--link);
-  color: var(--bg);
+background: var(--link);
+color: var(--bg);
 }
 
 .message-actions button:active {
-  transform: translate(1px, 1px);
+transform: translate(1px, 1px);
 }
 
 .message-actions button:disabled {
-  opacity: 0.45;
-  cursor: wait;
+opacity: 0.45;
+cursor: url("/assets/cursors/Windows 98 no.cur"), not-allowed;
 }
 
 .empty-state {
-  padding: 36px 16px;
-  border: 1px dashed var(--text);
-  text-align: center;
+padding: 36px 16px;
+border: 1px dashed var(--text);
+text-align: center;
 }
 
 .empty-state > span {
-  font-size: 24px;
+font-size: 24px;
 }
 
 .empty-state p {
-  margin: 8px 0 3px;
-  font-size: 12px;
-  font-weight: 700;
+margin: 8px 0 3px;
+font-size: 12px;
+font-weight: 700;
 }
 
 .empty-state small {
-  font-size: 9px;
-  opacity: 0.65;
+font-size: 9px;
+opacity: 0.65;
 }
 
 .loading-paw {
-  display: inline-block;
-  animation: guestbook-paw-bounce 0.8s infinite alternate;
+display: inline-block;
+animation: guestbook-paw-bounce 0.8s infinite alternate;
 }
 
 @keyframes guestbook-paw-bounce {
-  from {
-    transform: translateY(0);
-  }
+from {
+transform: translateY(0);
+}
 
-  to {
-    transform: translateY(-5px);
-  }
+to {
+transform: translateY(-5px);
+}
 }
 
 .moderation-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-  font-size: 9px;
-  opacity: 0.6;
+display: flex;
+justify-content: space-between;
+margin-top: 15px;
+font-size: 9px;
+opacity: 0.6;
 }
 
 /* =========================
-   MODERATION LOGIN
-   ========================= */
+MODERATION LOGIN
+========================= */
 
 .moderation-login-window {
-  width: min(520px, 100%);
+width: min(520px, 100%);
 }
 
 .login-terminal {
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border: 1px dashed var(--text);
-  background: var(--bg);
-  font-size: 10px;
-  line-height: 1.7;
-  opacity: 0.8;
+margin-bottom: 16px;
+padding: 10px 12px;
+border: 1px dashed var(--text);
+background: var(--bg);
+font-size: 10px;
+line-height: 1.7;
+opacity: 0.8;
 }
 
 .login-terminal p {
-  margin: 0;
+margin: 0;
 }
 
 .moderation-login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+display: flex;
+flex-direction: column;
+gap: 8px;
 }
 
 .moderation-login-form label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 0.08em;
 }
 
 .moderation-login-form input {
-  width: 100%;
-  padding: 9px 10px;
-  border: 2px inset var(--bg);
-  background: var(--bg);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
+width: 100%;
+padding: 9px 10px;
+border: 2px inset var(--bg);
+background: var(--bg);
+color: var(--text);
+font-family: inherit;
+font-size: 13px;
+outline: none;
+
+cursor: url("/assets/cursors/Windows 98 beam.cur"), text;
 }
 
 .moderation-login-form input:focus {
-  border-color: var(--headers);
+border-color: var(--headers);
 }
 
 .moderation-login-button {
-  margin-top: 4px;
-  padding: 8px 12px;
-  border: 1px solid var(--text);
-  background: var(--buttons);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
+margin-top: 4px;
+padding: 8px 12px;
+border: 1px solid var(--text);
+background: var(--buttons);
+color: var(--text);
+font-family: inherit;
+font-size: 10px;
+font-weight: 700;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
 }
 
 .moderation-login-button:hover {
-  background: var(--link);
-  color: var(--bg);
+background: var(--link);
+color: var(--bg);
 }
 
 .moderation-login-button:active {
-  transform: translate(1px, 1px);
+transform: translate(1px, 1px);
 }
 
 .moderation-login-button:disabled {
-  opacity: 0.5;
-  cursor: wait;
+opacity: 0.5;
+cursor: url("/assets/cursors/Windows 98 no.cur"), not-allowed;
 }
 
 .login-error {
-  margin: 10px 0 0;
-  padding: 7px 9px;
-  border: 1px solid var(--text);
-  background: var(--bg);
-  font-size: 10px;
-  text-align: center;
+margin: 10px 0 0;
+padding: 7px 9px;
+border: 1px solid var(--text);
+background: var(--bg);
+font-size: 10px;
+text-align: center;
 }
 
 /* =========================
-   CRT EFFECTS
-   ========================= */
+CRT EFFECTS
+========================= */
 
 .scanlines,
 .crt-roll {
-  position: fixed;
-  pointer-events: none;
-  inset: 0;
-  z-index: 2147483647;
-  mix-blend-mode: overlay;
+position: fixed;
+pointer-events: none;
+inset: 0;
+z-index: 2147483647;
+mix-blend-mode: overlay;
 }
 
 .scanlines {
-  background: repeating-linear-gradient(
-    0deg,
-    #0001 0 1px,
-    transparent 1px 4px
-  );
+background: repeating-linear-gradient(
+0deg,
+#0001 0 1px,
+transparent 1px 4px
+);
 }
 
 .crt-roll {
-  z-index: 2147483646;
-  background: linear-gradient(
-    transparent 35%,
-    #fff1 50%,
-    transparent 65%
-  );
-  animation: roll 7s linear infinite;
+z-index: 2147483646;
+background: linear-gradient(
+transparent 35%,
+#fff1 50%,
+transparent 65%
+);
+animation: roll 7s linear infinite;
 }
 
 @keyframes roll {
-  from {
-    transform: translateY(-100%);
-  }
+from {
+transform: translateY(-100%);
+}
 
-  to {
-    transform: translateY(100%);
-  }
+to {
+transform: translateY(100%);
+}
 }
 
 /* =========================
-   MOBILE
-   ========================= */
+MOBILE
+========================= */
 
 @media (max-width: 700px) {
   .portfolio {
@@ -1474,43 +1407,380 @@ details p {
   .guestbook {
     display: none;
   }
+
+  .media-player98 {
+    min-width: 0;
+  }
 }
 
 /* =========================
-   EXTRA SMALL SCREENS
-   ========================= */
+EXTRA SMALL SCREENS
+========================= */
 
 @media (max-width: 420px) {
-  .portfolio-content {
-    padding: 10px;
+.portfolio-content {
+padding: 10px;
+}
+
+.banner {
+padding: 14px;
+}
+
+.banner h1 {
+font-size: 32px;
+}
+
+.intro98 {
+align-items: flex-start;
+}
+
+.pixel-face {
+font-size: 38px;
+}
+
+.section-heading {
+align-items: flex-start;
+flex-direction: column;
+}
+
+.section-heading > span {
+align-self: flex-end;
+}
+
+.taskbar-window {
+font-size: 10px;
+}
+}
+
+/* =========================================================
+MEDIA PLAYER
+========================================================= */
+
+.media-player98 {
+min-width: 330px;
+padding: 10px;
+background: #c0c0c0;
+}
+
+.media-player-header {
+display: flex;
+gap: 9px;
+align-items: center;
+padding: 6px;
+border: 2px inset #fff;
+background: #dfdfdf;
+}
+
+.media-player-header div {
+display: grid;
+gap: 2px;
+}
+
+.media-player-header small,
+.media-player-display span {
+font: 11px Arial, sans-serif;
+}
+
+.media-player-display {
+margin: 10px 0;
+min-height: 110px;
+padding: 12px;
+display: grid;
+align-content: center;
+justify-items: center;
+gap: 5px;
+color: #c8ffc8;
+background: #001000;
+border: 3px inset #fff;
+font-family: "VT323", monospace;
+}
+
+.visualizer {
+height: 34px;
+width: 90%;
+display: flex;
+align-items: end;
+justify-content: center;
+gap: 2px;
+}
+
+.visualizer i {
+display: block;
+width: 4px;
+height: 8px;
+background: #7cff7c;
+animation: vu 600ms ease-in-out infinite alternate;
+}
+
+@keyframes vu {
+from {
+height: 5px;
+}
+
+to {
+height: 30px;
+}
+}
+
+.player-slider {
+display: grid;
+grid-template-columns: 55px 1fr;
+align-items: center;
+gap: 8px;
+margin-top: 7px;
+font: 11px Arial, sans-serif;
+}
+
+.player-slider input {
+width: 100%;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+}
+
+/* =========================================================
+CRT / DESKTOP OVERLAY
+========================================================= */
+
+.desktop::after {
+content: "";
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: 9;
+background: linear-gradient(
+rgba(255, 255, 255, 0.035) 50%,
+rgba(0, 0, 0, 0.035) 50%
+);
+background-size: 100% 4px;
+mix-blend-mode: overlay;
+}
+
+/* =========================================================
+PROJECT DETAILS WINDOW
+========================================================= */
+
+.project-details-window {
+left: 50%;
+top: 50%;
+width: min(650px, 75vw);
+height: min(620px, 72vh);
+
+transform: translate(-50%, -50%);
+}
+
+.project-details-body {
+height: calc(100% - 25px);
+overflow: auto;
+
+padding: 18px;
+
+background:
+#e8e6de
+url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath fill='%23c7e0e1' fill-opacity='.4' d='M0 0h2v2H0zM3 3h2v2H3z'/%3E%3C/svg%3E");
+
+font-family: Arial, sans-serif;
+font-size: 13px;
+}
+
+.project-details-header {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 16px;
+}
+
+.project-details-eyebrow {
+display: block;
+margin-bottom: 4px;
+
+color: #666;
+
+font: 10px Arial, sans-serif;
+letter-spacing: 0.08em;
+}
+
+.project-details-header h1 {
+margin: 0;
+
+color: #000080;
+
+font: 32px VT323, monospace;
+}
+
+.project-details-status {
+padding: 4px 7px;
+
+background: #c0c0c0;
+
+border: 2px inset #fff;
+
+font: 10px Arial, sans-serif;
+text-transform: lowercase;
+white-space: nowrap;
+}
+
+.project-details-divider {
+height: 2px;
+
+margin: 12px 0;
+
+border-top: 1px dotted #555;
+}
+
+.project-details-description {
+margin: 0 0 20px;
+
+padding: 12px;
+
+background: #fffde7;
+
+border: 2px inset #fff;
+
+line-height: 1.5;
+}
+
+.project-details-body h2 {
+margin: 18px 0 7px;
+
+color: #111;
+
+font: bold 13px "Pixelify Sans", monospace;
+}
+
+.project-details-tech {
+display: flex;
+flex-wrap: wrap;
+gap: 5px;
+}
+
+.project-details-tech span {
+padding: 4px 7px;
+
+background: #c0c0c0;
+
+border: 1px outset #fff;
+
+font: 10px Arial, sans-serif;
+}
+
+.project-details-meter {
+height: 16px;
+
+background: #fff;
+
+border: 2px inset #aaa;
+}
+
+.project-details-meter i {
+display: block;
+
+height: 100%;
+
+background: #000080;
+}
+
+.project-details-progress {
+margin: 5px 0 0;
+
+color: #555;
+
+font: 10px Arial, sans-serif;
+}
+
+.project-details-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.project-details-actions a {
+display: inline-block;
+
+padding: 6px 12px;
+
+background: #c0c0c0;
+
+color: #111;
+
+border: 2px outset #fff;
+
+text-decoration: none;
+
+font: 11px Arial, sans-serif;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+}
+
+.project-details-actions a:hover {
+background: #d9d9d9;
+}
+
+.project-details-actions a:active {
+border: 2px inset #fff;
+}
+
+.project-details-footer {
+display: flex;
+justify-content: space-between;
+gap: 10px;
+
+margin-top: 24px;
+padding-top: 8px;
+
+border-top: 1px dotted #777;
+
+color: #666;
+
+font: 9px "VT323", monospace;
+}
+
+.project-details-button {
+padding: 0;
+
+background: transparent;
+
+color: #000080;
+
+border: 0;
+
+text-decoration: underline;
+
+font: inherit;
+
+cursor: url("/assets/cursors/Windows 98 arrow.cur"), pointer;
+}
+
+.project-details-button:hover {
+color: #800080;
+}
+
+/* =========================================================
+MOBILE PROJECT DETAILS
+========================================================= */
+
+@media (max-width: 700px) {
+  .project-details-window {
+    left: 4vw;
+    top: 8vh;
+    width: 92vw;
+    height: 75vh;
+    transform: none;
   }
 
-  .banner {
-    padding: 14px;
+  .project-details-body {
+    padding: 12px;
   }
 
-  .banner h1 {
-    font-size: 32px;
-  }
-
-  .intro98 {
-    align-items: flex-start;
-  }
-
-  .pixel-face {
-    font-size: 38px;
-  }
-
-  .section-heading {
-    align-items: flex-start;
+  .project-details-header {
     flex-direction: column;
+    gap: 8px;
   }
 
-  .section-heading > span {
-    align-self: flex-end;
+  .project-details-header h1 {
+    font-size: 28px;
   }
 
-  .taskbar-window {
-    font-size: 10px;
+  .project-details-footer {
+    flex-direction: column;
   }
 }

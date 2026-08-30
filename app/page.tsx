@@ -1,22 +1,53 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+
 import { Window } from "./components/Window";
 import { Beep } from "./components/Beep";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { Guestbook } from "./components/Guestbook";
+import { AssetIcon } from "./components/AssetIcon";
 import { Terminal } from "./terminal";
+
 import { projects, Category } from "./projects";
-import { drumFill } from "./sound";
+import { playWindowsSound } from "./sound";
 import { nowItems, nowUpdatedAt } from "./now";
 
 type Stage = "boot" | "login" | "desktop";
-const beadArtShareUrl = process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
-const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
+
+const beadArtShareUrl =
+  process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
+
+const KONAMI = [
+  "arrowup",
+  "arrowup",
+  "arrowdown",
+  "arrowdown",
+  "arrowleft",
+  "arrowright",
+  "arrowleft",
+  "arrowright",
+  "b",
+  "a",
+];
+
+const icons = {
+  projects: "/assets/icons/Folder Open.ico",
+  about: "/assets/icons/My Profile Folder.ico",
+  now: "/assets/icons/Monitor.ico",
+  github: "/assets/icons/My Computer.ico",
+  kofi: "/assets/icons/Sounds, Speech, and Audio Devices.ico",
+  discord: "/assets/icons/Phone.ico",
+  music: "/assets/icons/Music File.ico",
+  hobbies: "/assets/icons/Game Controller.ico",
+  terminal: "/assets/icons/Manage your Server.ico",
+  guestbook: "/assets/icons/List File.ico",
+};
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>("boot");
   const [clock, setClock] = useState("");
+
   const [about, setAbout] = useState(true);
   const [now, setNow] = useState(false);
   const [portfolio, setPortfolio] = useState(true);
@@ -24,363 +55,1307 @@ export default function Home() {
   const [hobbies, setHobbies] = useState(false);
   const [guestbook, setGuestbook] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
+
   const [egg, setEgg] = useState(false);
-  const [projectFilter, setProjectFilter] = useState<"all" | Category>("all");
-  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, now: 23, hobbies: 24, player: 25, terminal: 26, guestbook: 27 });
-  const zCounter = useRef(27);
+
+  const [projectFilter, setProjectFilter] =
+    useState<"all" | Category>("all");
+
+  const [selectedProject, setSelectedProject] =
+    useState<(typeof projects)[number] | null>(null);
+
+  const [zMap, setZMap] = useState<Record<string, number>>({
+    portfolio: 21,
+    about: 22,
+    now: 23,
+    hobbies: 24,
+    player: 25,
+    terminal: 26,
+    guestbook: 27,
+    projectDetails: 28,
+  });
+
+  const zCounter = useRef(29);
   const keyBuffer = useRef<string[]>([]);
 
-  function focus(id: string) { setZMap((m) => ({ ...m, [id]: zCounter.current++ })); }
-  function openHobbies() { setHobbies(true); focus("hobbies"); }
-  function openPlayer() { setMusic(true); focus("player"); }
-  function openTerminal() { setTerminalOpen(true); focus("terminal"); }
-  function openGuestbook() { setGuestbook(true); focus("guestbook"); }
+  function focus(id: string) {
+    setZMap((current) => ({
+      ...current,
+      [id]: zCounter.current++,
+    }));
+  }
 
-  function toggleWindow(
-    id: string,
-    isOpen: boolean,
-    setOpen: (value: boolean) => void
-  ) {
-    if (!isOpen) {
-      setOpen(true);
-    }
+  function openHobbies() {
+    setHobbies(true);
+    focus("hobbies");
+    playWindowsSound("open");
+  }
 
-    focus(id);
+  function openPlayer() {
+    setMusic(true);
+    focus("player");
+    playWindowsSound("open");
+  }
+
+  function openTerminal() {
+    setTerminalOpen(true);
+    focus("terminal");
+    playWindowsSound("open");
+  }
+
+  function openGuestbook() {
+    setGuestbook(true);
+    focus("guestbook");
+    playWindowsSound("open");
   }
 
   function openPortfolio() {
     setPortfolio(true);
     focus("portfolio");
+    playWindowsSound("open");
   }
 
   function openAbout() {
     setAbout(true);
     focus("about");
+    playWindowsSound("open");
   }
 
   function openNow() {
     setNow(true);
     focus("now");
+    playWindowsSound("open");
+  }
+
+  function openProjectDetails(
+    project: (typeof projects)[number]
+  ) {
+    setSelectedProject(project);
+    focus("projectDetails");
+    playWindowsSound("open");
+  }
+
+  function closeProjectDetails() {
+    setSelectedProject(null);
+    playWindowsSound("close");
+  }
+
+  function closeWindow(
+    setOpen: (value: boolean) => void
+  ) {
+    setOpen(false);
+    playWindowsSound("close");
   }
 
   useEffect(() => {
-    const enter = (e: KeyboardEvent) => { if (e.key === "Enter" && stage === "boot") setStage("login"); };
-    const konami = (e: KeyboardEvent) => {
-      keyBuffer.current = [...keyBuffer.current, e.key.toLowerCase()].slice(-KONAMI.length);
-      if (stage === "desktop" && !egg && keyBuffer.current.join(",") === KONAMI.join(",")) {
-        setEgg(true);
-        drumFill(() => setEgg(false));
+    const handleEnter = (event: KeyboardEvent) => {
+      if (
+        event.key === "Enter" &&
+        stage === "boot"
+      ) {
+        playWindowsSound("startup", 0.55);
+        setStage("login");
       }
     };
-    addEventListener("keydown", enter);
-    addEventListener("keydown", konami);
-    const timer = setInterval(() => setClock(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })), 1000);
-    return () => { removeEventListener("keydown", enter); removeEventListener("keydown", konami); clearInterval(timer); };
+
+    const handleKonami = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+
+      keyBuffer.current = [
+        ...keyBuffer.current,
+        key,
+      ].slice(-KONAMI.length);
+
+      if (
+        stage === "desktop" &&
+        !egg &&
+        keyBuffer.current.join(",") ===
+          KONAMI.join(",")
+      ) {
+        setEgg(true);
+        playWindowsSound("success");
+
+        window.setTimeout(() => {
+          setEgg(false);
+          keyBuffer.current = [];
+        }, 1800);
+      }
+    };
+
+    const handleGlobalClick = (
+      event: MouseEvent
+    ) => {
+      if (stage !== "desktop") return;
+      if (egg) return;
+
+      const target =
+        event.target as HTMLElement | null;
+
+      if (!target) return;
+
+      const clickable = target.closest(
+        "button, a, summary, input[type='range']"
+      ) as HTMLElement | null;
+
+      if (!clickable) return;
+
+      /*
+       * Algunos elementos ya reproducen su propio
+       * sonido explícitamente. Evitamos duplicarlo.
+       */
+
+      if (
+        clickable.closest(".titlebar") ||
+        clickable.closest(".project-links") ||
+        clickable.closest(".taskbar")
+      ) {
+        return;
+      }
+
+      /*
+       * Enlaces que no tienen sonido explícito.
+       */
+      if (clickable.tagName === "A") {
+        playWindowsSound("click", 0.22);
+        return;
+      }
+
+      /*
+       * Iconos del escritorio.
+       */
+      if (
+        clickable.closest(".desktop-icons")
+      ) {
+        return;
+      }
+
+      /*
+       * Filtros de proyectos.
+       */
+      if (
+        clickable.closest(".project-filters")
+      ) {
+        return;
+      }
+
+      /*
+       * FAQ / details.
+       */
+      if (clickable.matches("summary")) {
+        playWindowsSound("click", 0.22);
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      handleEnter
+    );
+
+    window.addEventListener(
+      "keydown",
+      handleKonami
+    );
+
+    window.addEventListener(
+      "click",
+      handleGlobalClick
+    );
+
+    const timer = window.setInterval(() => {
+      setClock(
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      );
+    }, 1000);
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleEnter
+      );
+
+      window.removeEventListener(
+        "keydown",
+        handleKonami
+      );
+
+      window.removeEventListener(
+        "click",
+        handleGlobalClick
+      );
+
+      window.clearInterval(timer);
+    };
   }, [stage, egg]);
 
-  if (stage === "boot") return <main className="boot" onClick={() => setStage("login")}><pre>MAX BIOS v0.98
+  /*
+   * ========================================================
+   * BOOT
+   * ========================================================
+   */
+
+  if (stage === "boot") {
+    return (
+      <main
+        className="boot"
+        onClick={() => {
+          playWindowsSound(
+            "startup",
+            0.55
+          );
+
+          setStage("login");
+        }}
+      >
+        <pre>{`MAX BIOS v0.98
 
 Checking memory... OK
+
 Loading: MAXIMILIANO.EXE
+
 Loading: PROJECTS.DAT
+
 Loading: DRUMS.MID
 
-Press ENTER to continue_</pre></main>;
+Loading: WINDOWS98.ASSETS
 
-  if (stage === "login") return <main className="login"><Window title="Welcome to MaxOS" resizable={false}><div className="login-body"><div className="avatar">M</div><h1>Maximiliano</h1><p>Click to enter the desktop.</p><Beep onClick={() => setStage("desktop")}>Enter</Beep></div></Window></main>;
+Press ENTER to continue_`}</pre>
+      </main>
+    );
+  }
 
-  return <main className={`desktop${egg ? " shake" : ""}`}>
-    <div className="wallpaper" />
-    {egg && <div className="egg"><div className="egg-toast">🥁 nice one — Neil Peart energy.</div>{Array.from({ length: 12 }).map((_, i) => <span key={i} className="egg-note" style={{ left: `${(i * 8.3) % 100}%`, animationDelay: `${i * 0.05}s` }}>{i % 2 ? "♪" : "♫"}</span>)}</div>}
-    <aside className="desktop-icons">
-      <button
-        onClick={() => {
-          setPortfolio(true);
-          focus("portfolio");
-        }}
-      >
-        ▣
-        <span>My Projects</span>
-      </button>
+  /*
+   * ========================================================
+   * LOGIN
+   * ========================================================
+   */
 
-      <button
-        onClick={() => {
-          setAbout(true);
-          focus("about");
-        }}
-      >
-        👤
-        <span>About Max</span>
-      </button>
+  if (stage === "login") {
+    return (
+      <main className="login">
+        <Window
+          title="Welcome to MaxOS"
+          resizable={false}
+        >
+          <div className="login-body">
+            <AssetIcon
+              src={icons.about}
+              size={48}
+            />
 
-      <button
-        onClick={() => (now ? setNow(false) : openNow())}
-      >
-        🟢
-        <span>Now.exe</span>
-      </button>
+            <div className="avatar">
+              M
+            </div>
 
-      <a
-        href="https://github.com/max-lopzzz"
-        target="_blank"
-        rel="noreferrer"
-      >
-        ⌘
-        <span>GitHub</span>
-      </a>
+            <h1>Maximiliano</h1>
 
-      <a
-        href="https://ko-fi.com/P5P61TI6BS"
-        target="_blank"
-        rel="noreferrer"
-      >
-        ☕
-        <span>Ko-fi</span>
-      </a>
+            <p>
+              Click to enter the desktop.
+            </p>
 
-      <a
-        href="https://discord.com/users/605435789010141207"
-        target="_blank"
-        rel="noreferrer"
-      >
-        💬
-        <span>Discord</span>
-      </a>
+            <Beep
+              onClick={() => {
+                playWindowsSound(
+                  "startup",
+                  0.55
+                );
 
-      <button
-        onClick={() => (music ? setMusic(false) : openPlayer())}
-      >
-        ♫
-        <span>Music.exe</span>
-      </button>
+                setStage("desktop");
+              }}
+            >
+              Enter
+            </Beep>
+          </div>
+        </Window>
+      </main>
+    );
+  }
 
-      <button
-        onClick={() => (hobbies ? setHobbies(false) : openHobbies())}
-      >
-        ❖
-        <span>Hobbies</span>
-      </button>
+  /*
+   * ========================================================
+   * DESKTOP
+   * ========================================================
+   */
 
-      <button
-        onClick={() =>
-          terminalOpen ? setTerminalOpen(false) : openTerminal()
-        }
-      >
-        ▤
-        <span>Terminal</span>
-      </button>
+  return (
+    <main
+      className={`desktop${egg ? " shake" : ""}`}
+    >
+      <div className="wallpaper" />
 
-      <button
-        onClick={() =>
-          guestbook ? setGuestbook(false) : openGuestbook()
-        }
-      >
-        📖
-        <span>Guestbook</span>
-      </button>
-    </aside>
-    {portfolio && (
-      <Window
-        id="portfolio"
-        title="max_portfolio.exe"
-        className="portfolio"
-        zIndex={zMap.portfolio}
-        onFocus={focus}
-        onClose={() => setPortfolio(false)}
-      >
-      <div className="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
-      <div className="portfolio-content" id="portfolio">
-        <div className="banner"><p>MAXIMILIANO LÓPEZ MONTAÑO</p><h1>hello, internet.</h1><span>software · games · weird little tools</span></div>
-        <article className="intro98"><div className="pixel-face">:)</div><p>Hi, I’m Max. I’m a CS student from Monterrey who likes making software that feels useful, friendly, and a bit more human than it has to be.</p></article>
-        <div className="section-heading">
-          <div>
-            <h2>✦ project folder</h2>
-            <p>things i've made, broken, fixed, and shipped.</p>
+      {/* ==================================================
+          KONAMI EASTER EGG
+          ================================================== */}
+
+      {egg && (
+        <div
+          className="egg"
+          aria-hidden="true"
+        >
+          <div className="egg-toast">
+            🥁 nice one — Neil Peart energy.
           </div>
 
-          <span>{projects.length} ITEMS</span>
-        </div>
-        <div className="project-filters">
-          {(["all", "web", "game", "tool"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              className={projectFilter === option ? "active" : ""}
-              onClick={() => setProjectFilter(option)}
+          {Array.from({
+            length: 12,
+          }).map((_, i) => (
+            <span
+              key={i}
+              className="egg-note"
+              style={{
+                left: `${(i * 8.3) % 100}%`,
+                animationDelay: `${
+                  i * 0.05
+                }s`,
+              }}
             >
-              {option === "all" ? "ALL" : option === "web" ? "WEB" : option === "game" ? "GAMES" : "TOOLS"}
-            </button>
+              {i % 2 === 0 ? "♫" : "♪"}
+            </span>
           ))}
         </div>
-        <div className="projects">
-          {projects
-            .filter((project) => projectFilter === "all" || project.categories.includes(projectFilter))
-            .map(
-            ({
-              name,
-              copy,
-              progress,
-              slug,
-              technologies,
-              status,
-              github,
-              demo,
-            }) => (
-              <article key={slug} className="project98">
-                <b>▦ {name}</b>
+      )}
 
-                <p>{copy}</p>
+      {/* ==================================================
+          DESKTOP ICONS
+          ================================================== */}
 
-                <div className="project-tech">
-                  {technologies.map((technology) => (
-                    <span key={technology}>{technology}</span>
-                  ))}
-                </div>
+      <aside className="desktop-icons">
+        <button
+          type="button"
+          onClick={openPortfolio}
+        >
+          <AssetIcon
+            src={icons.projects}
+          />
 
-                <div className="meter">
-                  <i style={{ width: progress }} />
-                </div>
+          <span>My Projects</span>
+        </button>
 
-                <small>
-                  status: {status} · {progress}
-                </small>
+        <button
+          type="button"
+          onClick={openAbout}
+        >
+          <AssetIcon
+            src={icons.about}
+          />
 
-                <div className="project-links">
-                  <Link href={`/projects/${slug}`}>
-                    details →
-                  </Link>
+          <span>About Max</span>
+        </button>
 
-                  <a
-                    href={github}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    GitHub ↗
-                  </a>
+        <button
+          type="button"
+          onClick={() =>
+            now
+              ? closeWindow(setNow)
+              : openNow()
+          }
+        >
+          <AssetIcon
+            src={icons.now}
+          />
 
-                  {demo && (
-                    <a
-                      href={demo}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      live ↗
-                    </a>
-                  )}
-                </div>
-              </article>
-            )
-          )}
-        </div>
-        <h2>✦ things I do</h2>
-        <div className="services"><span>web apps</span><span>indie games</span><span>product design</span><span>software experiments</span></div>
-        <h2>✦ frequently asked questions</h2>
-        <details><summary>What are you working on right now?</summary><p>Mostly PakuPaku, work projects for civil-society organizations, and whatever I can’t stop thinking about.</p></details>
-        <details><summary>Can I say hi?</summary><p>Yes please. Email is best: <a href="mailto:m.lopz.montn@gmail.com">m.lopz.montn@gmail.com</a> — or send feedback on <a href="https://discord.com/users/605435789010141207" target="_blank">Discord ↗</a>.</p></details>
-        <p className="kofi-cta"><a className="bevel" href="https://ko-fi.com/P5P61TI6BS" target="_blank">☕ buy me a Ko-fi ↗</a></p>
-      </div>
-    </Window>
-    )}
-    {about && <Window id="about" title="about_max.txt" className="about" zIndex={zMap.about} onFocus={focus} onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
-    {now && <Window id="now" title="now.exe" className="now" zIndex={zMap.now} onFocus={focus} onClose={() => setNow(false)}><div className="now-body">{nowItems.map((item) => <div className="now-row" key={item.label}><b>{item.emoji} {item.label}:</b><span>{item.value}</span></div>)}<p className="now-updated">last updated {nowUpdatedAt}</p></div></Window>}
-    {hobbies && <Window id="hobbies" title="hobbies.exe" className="hobbies" zIndex={zMap.hobbies} onFocus={focus} onClose={() => setHobbies(false)}>
-      <div className="hobbies-body">
-        <div className="hobby-card"><b>🧵 bead art</b><p>I turn pixel-art patterns into perler bead grids — color-matched, no guessing. Built a whole tool for it.</p>{beadArtShareUrl && <iframe src={beadArtShareUrl} className="beadart-embed" title="Current bead art progress" loading="lazy" />}<a href="https://beadart-sable.vercel.app/" target="_blank">open beadart-sable ↗</a></div>
-        <div className="hobby-card"><b>🥁 drums</b><p>Currently learning Tom Sawyer by Rush — Neil Peart’s fills are humbling. Give it a listen:</p><Beep onClick={openPlayer}>▶ open player</Beep></div>
-      </div>
-    </Window>}
-    {music && <Window id="player" title="tiny media player" className="player" zIndex={zMap.player} onFocus={focus} onClose={() => setMusic(false)} resizable={false}><MusicPlayer /></Window>}
-    {terminalOpen && <Window id="terminal" title="terminal.exe" className="terminal-window" zIndex={zMap.terminal} onFocus={focus} onClose={() => setTerminalOpen(false)}><Terminal projects={projects} onOpenHobbies={openHobbies} onOpenPlayer={openPlayer} onOpenGuestbook={openGuestbook} /></Window>}
-    {guestbook && <Window id="guestbook" title="guestbook.exe" className="guestbook" zIndex={zMap.guestbook} onFocus={focus} onClose={() => setGuestbook(false)}><Guestbook /></Window>}
-    <footer className="taskbar">
-      <Beep>▣ Start</Beep>
+          <span>Now.exe</span>
+        </button>
+
+        <a
+          href="https://github.com/max-lopzzz"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() =>
+            playWindowsSound("open")
+          }
+        >
+          <AssetIcon
+            src={icons.github}
+          />
+
+          <span>GitHub</span>
+        </a>
+
+        <a
+          href="https://ko-fi.com/P5P61TI6BS"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() =>
+            playWindowsSound("open")
+          }
+        >
+          <AssetIcon
+            src={icons.kofi}
+          />
+
+          <span>Ko-fi</span>
+        </a>
+
+        <a
+          href="https://discord.com/users/605435789010141207"
+          target="_blank"
+          rel="noreferrer"
+          onClick={() =>
+            playWindowsSound("open")
+          }
+        >
+          <AssetIcon
+            src={icons.discord}
+          />
+
+          <span>Discord</span>
+        </a>
+
+        <button
+          type="button"
+          onClick={() =>
+            music
+              ? closeWindow(setMusic)
+              : openPlayer()
+          }
+        >
+          <AssetIcon
+            src={icons.music}
+          />
+
+          <span>Music.exe</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            hobbies
+              ? closeWindow(setHobbies)
+              : openHobbies()
+          }
+        >
+          <AssetIcon
+            src={icons.hobbies}
+          />
+
+          <span>Hobbies</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            terminalOpen
+              ? closeWindow(
+                  setTerminalOpen
+                )
+              : openTerminal()
+          }
+        >
+          <AssetIcon
+            src={icons.terminal}
+          />
+
+          <span>Terminal</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            guestbook
+              ? closeWindow(
+                  setGuestbook
+                )
+              : openGuestbook()
+          }
+        >
+          <AssetIcon
+            src={icons.guestbook}
+          />
+
+          <span>Guestbook</span>
+        </button>
+      </aside>
+
+      {/* ==================================================
+          PORTFOLIO
+          ================================================== */}
 
       {portfolio && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openPortfolio();
-          }}
+        <Window
+          id="portfolio"
+          title="max_portfolio.exe"
+          className="portfolio"
+          zIndex={zMap.portfolio}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setPortfolio)
+          }
         >
-          max_portfolio.exe
-        </button>
+          <div className="menu">
+            <span>
+              <u>F</u>ile
+            </span>
+
+            <span>
+              <u>E</u>dit
+            </span>
+
+            <span>
+              <u>V</u>iew
+            </span>
+
+            <span>
+              <u>H</u>elp
+            </span>
+          </div>
+
+          <div
+            className="portfolio-content"
+            id="portfolio"
+          >
+            <div className="banner">
+              <p>
+                MAXIMILIANO LÓPEZ MONTAÑO
+              </p>
+
+              <h1>
+                hello, internet.
+              </h1>
+
+              <span>
+                software · games · weird
+                little tools
+              </span>
+            </div>
+
+            <article className="intro98">
+              <div className="pixel-face">
+                :)
+              </div>
+
+              <p>
+                Hi, I’m Max. I’m a CS
+                student from Monterrey
+                who likes making software
+                that feels useful,
+                friendly, and a bit more
+                human than it has to be.
+              </p>
+            </article>
+
+            <div className="section-heading">
+              <div>
+                <h2>
+                  ✦ project folder
+                </h2>
+
+                <p>
+                  things i've made,
+                  broken, fixed, and
+                  shipped.
+                </p>
+              </div>
+
+              <span>
+                {projects.length} ITEMS
+              </span>
+            </div>
+
+            {/* PROJECT FILTERS */}
+
+            <div className="project-filters">
+              {(
+                [
+                  "all",
+                  "web",
+                  "game",
+                  "tool",
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={
+                    projectFilter ===
+                    option
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() => {
+                    setProjectFilter(
+                      option
+                    );
+
+                    playWindowsSound(
+                      "click",
+                      0.25
+                    );
+                  }}
+                >
+                  {option ===
+                  "all"
+                    ? "ALL"
+                    : option === "web"
+                      ? "WEB"
+                      : option ===
+                          "game"
+                        ? "GAMES"
+                        : "TOOLS"}
+                </button>
+              ))}
+            </div>
+
+            {/* PROJECTS */}
+
+            <div className="projects">
+              {projects
+                .filter(
+                  (project) =>
+                    projectFilter ===
+                      "all" ||
+                    project.categories.includes(
+                      projectFilter
+                    )
+                )
+                .map((project) => {
+                  const {
+                    name,
+                    copy,
+                    progress,
+                    slug,
+                    technologies,
+                    status,
+                    github,
+                    demo,
+                  } = project;
+
+                  return (
+                    <article
+                      key={slug}
+                      className="project98"
+                    >
+                      <b>
+                        ▦ {name}
+                      </b>
+
+                      <p>{copy}</p>
+
+                      <div className="project-tech">
+                        {technologies.map(
+                          (
+                            technology
+                          ) => (
+                            <span
+                              key={
+                                technology
+                              }
+                            >
+                              {
+                                technology
+                              }
+                            </span>
+                          )
+                        )}
+                      </div>
+
+                      <div className="meter">
+                        <i
+                          style={{
+                            width:
+                              progress,
+                          }}
+                        />
+                      </div>
+
+                      <small>
+                        status:{" "}
+                        {status} ·{" "}
+                        {progress}
+                      </small>
+
+                      <div className="project-links">
+                        <button
+                          type="button"
+                          className="project-details-button"
+                          onClick={() =>
+                            openProjectDetails(
+                              project
+                            )
+                          }
+                        >
+                          details →
+                        </button>
+
+                        <a
+                          href={github}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          GitHub ↗
+                        </a>
+
+                        {demo && (
+                          <a
+                            href={demo}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            live ↗
+                          </a>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+            </div>
+
+            <h2>
+              ✦ things I do
+            </h2>
+
+            <div className="services">
+              <span>
+                web apps
+              </span>
+
+              <span>
+                indie games
+              </span>
+
+              <span>
+                product design
+              </span>
+
+              <span>
+                software experiments
+              </span>
+            </div>
+
+            <h2>
+              ✦ frequently asked
+              questions
+            </h2>
+
+            <details>
+              <summary>
+                What are you working
+                on right now?
+              </summary>
+
+              <p>
+                Mostly PakuPaku, work
+                projects for
+                civil-society
+                organizations, and
+                whatever I can’t stop
+                thinking about.
+              </p>
+            </details>
+
+            <details>
+              <summary>
+                Can I say hi?
+              </summary>
+
+              <p>
+                Yes please. Email is
+                best:{" "}
+                <a href="mailto:m.lopz.montn@gmail.com">
+                  m.lopz.montn@gmail.com
+                </a>{" "}
+                — or send feedback
+                on{" "}
+                <a
+                  href="https://discord.com/users/605435789010141207"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Discord ↗
+                </a>
+                .
+              </p>
+            </details>
+
+            <p className="kofi-cta">
+              <a
+                className="bevel"
+                href="https://ko-fi.com/P5P61TI6BS"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ☕ buy me a Ko-fi ↗
+              </a>
+            </p>
+          </div>
+        </Window>
       )}
+
+      {/* ==================================================
+          PROJECT DETAILS
+          ================================================== */}
+
+      {selectedProject && (
+        <Window
+          id="projectDetails"
+          title={`${selectedProject.name}.exe`}
+          className="project-details-window"
+          zIndex={
+            zMap.projectDetails
+          }
+          onFocus={focus}
+          onClose={
+            closeProjectDetails
+          }
+          resizable={true}
+        >
+          <div className="project-details-body">
+            <div className="project-details-header">
+              <div>
+                <span className="project-details-eyebrow">
+                  PROJECT FILE
+                </span>
+
+                <h1>
+                  {selectedProject.name}
+                </h1>
+              </div>
+
+              <span className="project-details-status">
+                {
+                  selectedProject.status
+                }
+              </span>
+            </div>
+
+            <div className="project-details-divider" />
+
+            <p className="project-details-description">
+              {
+                selectedProject.copy
+              }
+            </p>
+
+            <h2>
+              TECHNOLOGIES
+            </h2>
+
+            <div className="project-details-tech">
+              {selectedProject.technologies.map(
+                (technology) => (
+                  <span
+                    key={technology}
+                  >
+                    {technology}
+                  </span>
+                )
+              )}
+            </div>
+
+            <h2>
+              PROGRESS
+            </h2>
+
+            <div className="project-details-meter">
+              <i
+                style={{
+                  width:
+                    selectedProject.progress,
+                }}
+              />
+            </div>
+
+            <p className="project-details-progress">
+              {
+                selectedProject.progress
+              }{" "}
+              complete
+            </p>
+
+            <h2>
+              LINKS
+            </h2>
+
+            <div className="project-details-actions">
+              <a
+                href={
+                  selectedProject.github
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub ↗
+              </a>
+
+              {selectedProject.demo && (
+                <a
+                  href={
+                    selectedProject.demo
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Live Demo ↗
+                </a>
+              )}
+            </div>
+
+            <div className="project-details-footer">
+              <span>
+                C:\MAX\PROJECTS\
+                {selectedProject.slug}
+              </span>
+
+              <span>
+                {
+                  selectedProject.slug
+                }
+                .dat
+              </span>
+            </div>
+          </div>
+        </Window>
+      )}
+
+      {/* ==================================================
+          ABOUT
+          ================================================== */}
 
       {about && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openAbout();
-          }}
+        <Window
+          id="about"
+          title="about_max.txt"
+          className="about"
+          zIndex={zMap.about}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setAbout)
+          }
         >
-          about_max.txt
-        </button>
+          <div className="about-body">
+            <b>
+              Max has logged on.
+            </b>
+
+            <p>
+              Engineering in Computer
+              Technologies @ Tec de
+              Monterrey. Software
+              engineer, indie maker,
+              game developer, drummer.
+            </p>
+
+            <p>
+              Currently making things
+              for NGOs and people who
+              need them.
+            </p>
+
+            <a href="mailto:m.lopz.montn@gmail.com">
+              send email ↗
+            </a>
+          </div>
+        </Window>
       )}
+
+      {/* ==================================================
+          NOW
+          ================================================== */}
 
       {now && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openNow();
-          }}
+        <Window
+          id="now"
+          title="now.exe"
+          className="now"
+          zIndex={zMap.now}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setNow)
+          }
         >
-          now.exe
-        </button>
+          <div className="now-body">
+            {nowItems.map((item) => (
+              <div
+                className="now-row"
+                key={item.label}
+              >
+                <b>
+                  {item.emoji}{" "}
+                  {item.label}:
+                </b>
+
+                <span>
+                  {item.value}
+                </span>
+              </div>
+            ))}
+
+            <p className="now-updated">
+              last updated{" "}
+              {nowUpdatedAt}
+            </p>
+          </div>
+        </Window>
       )}
+
+      {/* ==================================================
+          HOBBIES
+          ================================================== */}
 
       {hobbies && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openHobbies();
-          }}
+        <Window
+          id="hobbies"
+          title="hobbies.exe"
+          className="hobbies"
+          zIndex={zMap.hobbies}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setHobbies)
+          }
         >
-          hobbies.exe
-        </button>
+          <div className="hobbies-body">
+            <div className="hobby-card">
+              <b>
+                🧵 bead art
+              </b>
+
+              <p>
+                I turn pixel-art
+                patterns into perler
+                bead grids —
+                color-matched, no
+                guessing. Built a
+                whole tool for it.
+              </p>
+
+              {beadArtShareUrl && (
+                <iframe
+                  src={
+                    beadArtShareUrl
+                  }
+                  className="beadart-embed"
+                  title="Current bead art progress"
+                  loading="lazy"
+                />
+              )}
+
+              <a
+                href="https://beadart-sable.vercel.app/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                open beadart-sable ↗
+              </a>
+            </div>
+
+            <div className="hobby-card">
+              <b>
+                🥁 drums
+              </b>
+
+              <p>
+                Currently learning
+                Tom Sawyer by Rush
+                — Neil Peart’s fills
+                are humbling. Give
+                it a listen:
+              </p>
+
+              <Beep
+                onClick={openPlayer}
+              >
+                ▶ open player
+              </Beep>
+            </div>
+          </div>
+        </Window>
       )}
+
+      {/* ==================================================
+          MUSIC PLAYER
+          ================================================== */}
 
       {music && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openPlayer();
-          }}
+        <Window
+          id="player"
+          title="tiny media player"
+          className="player"
+          zIndex={zMap.player}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setMusic)
+          }
+          resizable={false}
         >
-          tiny media player
-        </button>
+          <MusicPlayer />
+        </Window>
       )}
+
+      {/* ==================================================
+          TERMINAL
+          ================================================== */}
 
       {terminalOpen && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openTerminal();
-          }}
+        <Window
+          id="terminal"
+          title="terminal.exe"
+          className="terminal-window"
+          zIndex={zMap.terminal}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(
+              setTerminalOpen
+            )
+          }
         >
-          terminal.exe
-        </button>
+          <Terminal
+            projects={projects}
+            onOpenHobbies={
+              openHobbies
+            }
+            onOpenPlayer={
+              openPlayer
+            }
+            onOpenGuestbook={
+              openGuestbook
+            }
+          />
+        </Window>
       )}
+
+      {/* ==================================================
+          GUESTBOOK
+          ================================================== */}
 
       {guestbook && (
-        <button
-          type="button"
-          className="taskbar-window"
-          onClick={() => {
-            openGuestbook();
-          }}
+        <Window
+          id="guestbook"
+          title="guestbook.exe"
+          className="guestbook"
+          zIndex={zMap.guestbook}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(
+              setGuestbook
+            )
+          }
         >
-          guestbook.exe
-        </button>
+          <Guestbook />
+        </Window>
       )}
 
-      <time>{clock}</time>
-    </footer>
-    <div className="scanlines" /><div className="crt-roll" />
-  </main>;
+      {/* ==================================================
+          TASKBAR
+          ================================================== */}
+
+      <footer className="taskbar">
+        <Beep
+          onClick={() =>
+            playWindowsSound(
+              "click",
+              0.3
+            )
+          }
+        >
+          <AssetIcon
+            src="/assets/icons/Folder Closed.ico"
+            size={16}
+          />{" "}
+          Start
+        </Beep>
+
+        {portfolio && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={
+              openPortfolio
+            }
+          >
+            max_portfolio.exe
+          </button>
+        )}
+
+        {about && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openAbout}
+          >
+            about_max.txt
+          </button>
+        )}
+
+        {now && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openNow}
+          >
+            now.exe
+          </button>
+        )}
+
+        {hobbies && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={
+              openHobbies
+            }
+          >
+            hobbies.exe
+          </button>
+        )}
+
+        {music && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openPlayer}
+          >
+            tiny media player
+          </button>
+        )}
+
+        {terminalOpen && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={
+              openTerminal
+            }
+          >
+            terminal.exe
+          </button>
+        )}
+
+        {guestbook && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={
+              openGuestbook
+            }
+          >
+            guestbook.exe
+          </button>
+        )}
+
+        {selectedProject && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={() =>
+              focus(
+                "projectDetails"
+              )
+            }
+          >
+            {
+              selectedProject.name
+            }
+            .exe
+          </button>
+        )}
+
+        <time>{clock}</time>
+      </footer>
+
+      <div className="scanlines" />
+      <div className="crt-roll" />
+    </main>
+  );
 }

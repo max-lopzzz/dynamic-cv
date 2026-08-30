@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Beep } from "./Beep";
+import { playWindowsSound } from "../sound";
 
 function fmt(s: number) {
   if (!isFinite(s)) return "0:00";
@@ -30,11 +31,23 @@ export function MusicPlayer() {
     };
   }, []);
 
-  function toggle() {
+  async function toggle() {
     const audio = audioRef.current;
     if (!audio) return;
-    if (playing) audio.pause(); else audio.play();
-    setPlaying(!playing);
+    if (playing) {
+      audio.pause();
+      playWindowsSound("close");
+      setPlaying(false);
+      return;
+    }
+    try {
+      await audio.play();
+      playWindowsSound("open");
+      setPlaying(true);
+    } catch {
+      playWindowsSound("error");
+      setPlaying(false);
+    }
   }
 
   function seek(value: number) {
@@ -45,15 +58,32 @@ export function MusicPlayer() {
   }
 
   return (
-    <>
+    <div className="media-player98">
       <audio ref={audioRef} src="/audio/tom-sawyer.mp3" preload="metadata" />
-      <p className="track-title">♫ Tom Sawyer — Rush <small>(currently learning on drums 🥁)</small></p>
+      <div className="media-player-header">
+        <img src="/assets/icons/Music File.ico" alt="" width="32" height="32" />
+        <div>
+          <b>Windows Media Player</b>
+          <small>Tom Sawyer — Rush</small>
+        </div>
+      </div>
+      <div className="media-player-display">
+        <div className="visualizer" aria-hidden="true">
+          {Array.from({ length: 18 }).map((_, i) => <i key={i} style={{ animationDelay: `${i * 45}ms` }} />)}
+        </div>
+        <strong>♫ TOM SAWYER</strong>
+        <span>RUSH · currently learning on drums</span>
+      </div>
       <div className="player-row">
         <Beep onClick={toggle}>{playing ? "❚❚ pause" : "▶ play"}</Beep>
         <span className="time">{fmt(time)} / {fmt(duration)}</span>
       </div>
-      <input type="range" aria-label="Seek" min={0} max={duration || 0} step={0.1} value={time} onChange={(e) => seek(Number(e.target.value))} />
-      <input type="range" aria-label="Volume" min={0} max={1} step={0.01} defaultValue={0.7} onChange={(e) => { if (audioRef.current) audioRef.current.volume = Number(e.target.value); }} />
-    </>
+      <label className="player-slider">Position
+        <input type="range" aria-label="Seek" min={0} max={duration || 0} step={0.1} value={time} onChange={(e) => seek(Number(e.target.value))} />
+      </label>
+      <label className="player-slider">Volume
+        <input type="range" aria-label="Volume" min={0} max={1} step={0.01} defaultValue={0.7} onChange={(e) => { if (audioRef.current) audioRef.current.volume = Number(e.target.value); }} />
+      </label>
+    </div>
   );
 }
