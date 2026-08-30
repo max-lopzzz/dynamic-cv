@@ -1,0 +1,248 @@
+diff --git a/app/globals.css b/app/globals.css
+index 905354c..85db68e 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -507,6 +507,84 @@ color: #000080;
+ cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
+ }
+ 
++/* =========================
++NOW
++========================= */
++
++.now {
++right: 6vw;
++top: 40vh;
++width: min(260px, 80vw);
++}
++
++.now-body {
++padding: 13px;
++font-family: Arial, sans-serif;
++font-size: 13px;
++}
++
++.now-row {
++display: flex;
++gap: 8px;
++margin-bottom: 8px;
++align-items: baseline;
++}
++
++.now-row b {
++min-width: 92px;
++flex-shrink: 0;
++}
++
++.now-updated {
++margin: 10px 0 0;
++font-size: 11px;
++color: #555;
++}
++
++/* =========================
++HIRE ME
++========================= */
++
++.hire-me {
++right: 6vw;
++top: 64vh;
++width: min(260px, 82vw);
++}
++
++.hire-me-body {
++padding: 13px;
++font-family: Arial, sans-serif;
++font-size: 13px;
++}
++
++.hire-me-body p {
++margin: 8px 0 12px;
++line-height: 1.4;
++}
++
++.hire-me-links {
++display: flex;
++flex-direction: column;
++gap: 6px;
++}
++
++.hire-me-links .bevel {
++text-align: left;
++text-decoration: none;
++color: #111;
++cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
++}
++
++.hire-me-links .bevel:hover {
++background: #d9d9d9;
++}
++
++.hire-me-note {
++margin-top: 12px !important;
++font-size: 11px;
++color: #555;
++}
++
+ /* =========================
+ HOBBIES
+ ========================= */
+diff --git a/app/page.tsx b/app/page.tsx
+index 0e56725..ce4836a 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -42,6 +42,7 @@ const icons = {
+   hobbies: "/assets/icons/Game Controller.ico",
+   terminal: "/assets/icons/Manage your Server.ico",
+   guestbook: "/assets/icons/List File.ico",
++  hireMe: "/assets/icons/User Support.ico",
+ };
+ 
+ export default function Home() {
+@@ -55,6 +56,7 @@ export default function Home() {
+   const [hobbies, setHobbies] = useState(false);
+   const [guestbook, setGuestbook] = useState(false);
+   const [terminalOpen, setTerminalOpen] = useState(false);
++  const [hireMe, setHireMe] = useState(false);
+ 
+   const [egg, setEgg] = useState(false);
+ 
+@@ -73,9 +75,10 @@ export default function Home() {
+     terminal: 26,
+     guestbook: 27,
+     projectDetails: 28,
++    hireMe: 29,
+   });
+ 
+-  const zCounter = useRef(29);
++  const zCounter = useRef(30);
+   const keyBuffer = useRef<string[]>([]);
+ 
+   function focus(id: string) {
+@@ -127,6 +130,12 @@ export default function Home() {
+     playWindowsSound("open");
+   }
+ 
++  function openHireMe() {
++    setHireMe(true);
++    focus("hireMe");
++    playWindowsSound("open");
++  }
++
+   function openProjectDetails(
+     project: (typeof projects)[number]
+   ) {
+@@ -459,6 +468,21 @@ Press ENTER to continue_`}</pre>
+           <span>Now.exe</span>
+         </button>
+ 
++        <button
++          type="button"
++          onClick={() =>
++            hireMe
++              ? closeWindow(setHireMe)
++              : openHireMe()
++          }
++        >
++          <AssetIcon
++            src={icons.hireMe}
++          />
++
++          <span>Hire Me.exe</span>
++        </button>
++
+         <a
+           href="https://github.com/max-lopzzz"
+           target="_blank"
+@@ -1090,6 +1114,74 @@ Press ENTER to continue_`}</pre>
+         </Window>
+       )}
+ 
++      {/* ==================================================
++          HIRE ME
++          ================================================== */}
++
++      {hireMe && (
++        <Window
++          id="hireMe"
++          title="hire_me.exe"
++          className="hire-me"
++          zIndex={zMap.hireMe}
++          onFocus={focus}
++          onClose={() =>
++            closeWindow(setHireMe)
++          }
++        >
++          <div className="hire-me-body">
++            <b>let&apos;s build something.</b>
++
++            <p>
++              need a website? have a
++              weird idea? need a
++              little tool built?
++            </p>
++
++            <div className="hire-me-links">
++              <a
++                className="bevel"
++                href="mailto:m.lopz.montn@gmail.com?subject=Let%27s%20build%20something"
++                onClick={() =>
++                  playWindowsSound("open")
++                }
++              >
++                ✉ email me
++              </a>
++
++              <a
++                className="bevel"
++                href="https://github.com/max-lopzzz"
++                target="_blank"
++                rel="noreferrer"
++                onClick={() =>
++                  playWindowsSound("open")
++                }
++              >
++                ⌘ github ↗
++              </a>
++
++              <a
++                className="bevel"
++                href="https://discord.com/users/605435789010141207"
++                target="_blank"
++                rel="noreferrer"
++                onClick={() =>
++                  playWindowsSound("open")
++                }
++              >
++                💬 discord ↗
++              </a>
++            </div>
++
++            <p className="hire-me-note">
++              usually reply within a
++              day or two.
++            </p>
++          </div>
++        </Window>
++      )}
++
+       {/* ==================================================
+           HOBBIES
+           ================================================== */}
+@@ -1288,6 +1380,16 @@ Press ENTER to continue_`}</pre>
+           </button>
+         )}
+ 
++        {hireMe && (
++          <button
++            type="button"
++            className="taskbar-window"
++            onClick={openHireMe}
++          >
++            hire_me.exe
++          </button>
++        )}
++
+         {hobbies && (
+           <button
+             type="button"

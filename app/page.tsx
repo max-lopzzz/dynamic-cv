@@ -42,6 +42,7 @@ const icons = {
   hobbies: "/assets/icons/Game Controller.ico",
   terminal: "/assets/icons/Manage your Server.ico",
   guestbook: "/assets/icons/List File.ico",
+  hireMe: "/assets/icons/User Support.ico",
 };
 
 export default function Home() {
@@ -55,6 +56,7 @@ export default function Home() {
   const [hobbies, setHobbies] = useState(false);
   const [guestbook, setGuestbook] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
+  const [hireMe, setHireMe] = useState(false);
 
   const [egg, setEgg] = useState(false);
 
@@ -73,9 +75,10 @@ export default function Home() {
     terminal: 26,
     guestbook: 27,
     projectDetails: 28,
+    hireMe: 29,
   });
 
-  const zCounter = useRef(29);
+  const zCounter = useRef(30);
   const keyBuffer = useRef<string[]>([]);
 
   function focus(id: string) {
@@ -124,6 +127,12 @@ export default function Home() {
   function openNow() {
     setNow(true);
     focus("now");
+    playWindowsSound("open");
+  }
+
+  function openHireMe() {
+    setHireMe(true);
+    focus("hireMe");
     playWindowsSound("open");
   }
 
@@ -457,6 +466,21 @@ Press ENTER to continue_`}</pre>
           />
 
           <span>Now.exe</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            hireMe
+              ? closeWindow(setHireMe)
+              : openHireMe()
+          }
+        >
+          <AssetIcon
+            src={icons.hireMe}
+          />
+
+          <span>Hire Me.exe</span>
         </button>
 
         <a
@@ -1091,6 +1115,110 @@ Press ENTER to continue_`}</pre>
       )}
 
       {/* ==================================================
+          HIRE ME
+          ================================================== */}
+
+      {hireMe && (
+        <Window
+          id="hireMe"
+          title="hire_me.exe"
+          className="hire-me"
+          zIndex={zMap.hireMe}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setHireMe)
+          }
+        >
+          <div className="hire-me-body">
+            <b>let&apos;s build something.</b>
+
+            <p>
+              need a website? have a
+              weird idea? need a
+              little tool built?
+            </p>
+
+            <div className="hire-me-links">
+              <a
+                className="bevel"
+                href="https://www.upwork.com/freelancers/~0161289b05445bca4e?mp_source=share"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                🅄 upwork ↗
+              </a>
+
+              <a
+                className="bevel"
+                href="https://www.fiverr.com/s/r37aYkr"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                🅵 fiverr ↗
+              </a>
+
+              <a
+                className="bevel"
+                href="https://contra.com/maximiliano_lopez"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                🅲 contra ↗
+              </a>
+
+              <a
+                className="bevel"
+                href="mailto:m.lopz.montn@gmail.com?subject=Let%27s%20build%20something"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                ✉ email me
+              </a>
+
+              <a
+                className="bevel"
+                href="https://github.com/max-lopzzz"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                ⌘ github ↗
+              </a>
+
+              <a
+                className="bevel"
+                href="https://discord.com/users/605435789010141207"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() =>
+                  playWindowsSound("open")
+                }
+              >
+                💬 discord ↗
+              </a>
+            </div>
+
+            <p className="hire-me-note">
+              usually reply within a
+              day or two.
+            </p>
+          </div>
+        </Window>
+      )}
+
+      {/* ==================================================
           HOBBIES
           ================================================== */}
 
@@ -1285,6 +1413,16 @@ Press ENTER to continue_`}</pre>
             onClick={openNow}
           >
             now.exe
+          </button>
+        )}
+
+        {hireMe && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openHireMe}
+          >
+            hire_me.exe
           </button>
         )}
 
