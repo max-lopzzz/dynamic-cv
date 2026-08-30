@@ -269,6 +269,37 @@ a {
   gap: 10px;
 }
 
+.project-filters {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.project-filters button {
+  background: #c0c0c0;
+  border: 0;
+  padding: 4px 10px;
+  font: 12px "Pixelify Sans", monospace;
+  box-shadow:
+    inset -1px -1px #111,
+    inset 1px 1px #fff,
+    inset -2px -2px #777,
+    inset 2px 2px #ddd;
+}
+
+.project-filters button:hover {
+  background: #d9d9d9;
+}
+
+.project-filters button.active {
+  background: #000080;
+  color: #fff;
+  box-shadow:
+    inset 1px 1px #111,
+    inset -1px -1px #fff;
+}
+
 .project98 {
   display: flex;
   flex-direction: column;
@@ -350,6 +381,126 @@ a {
 }
 
 /* =========================
+   PROJECT DETAIL PAGE
+   ========================= */
+
+.project-page {
+  min-height: 100vh;
+  background: #008080;
+  padding: 6vh 6vw;
+  color: #111;
+}
+
+.project-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #fff;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+
+.project-back:hover {
+  text-decoration: underline;
+}
+
+.project-window {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  box-shadow:
+    inset -1px -1px #111,
+    inset 1px 1px #fff,
+    inset -2px -2px #777,
+    inset 2px 2px #ddd;
+}
+
+.project-body {
+  padding: 18px;
+  font-family: Arial, sans-serif;
+}
+
+.project-screenshot {
+  width: 100%;
+  display: block;
+  margin-bottom: 14px;
+  border: 2px inset #aaa;
+}
+
+.project-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.project-heading h1 {
+  margin: 0;
+  font-family: "Pixelify Sans", monospace;
+  font-size: 26px;
+}
+
+.project-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #e8e8e8;
+  border: 1px solid #999;
+  white-space: nowrap;
+}
+
+.project-body .project-tech {
+  margin: 10px 0;
+}
+
+.project-body .meter {
+  margin-bottom: 18px;
+}
+
+.project-section {
+  margin: 18px 0;
+}
+
+.project-section h2 {
+  font-family: "Pixelify Sans", monospace;
+  font-size: 16px;
+  margin: 0 0 6px;
+  border-bottom: 2px solid #999;
+  padding-bottom: 4px;
+}
+
+.project-section p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.project-section ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.project-detail-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.project-detail-links .bevel {
+  text-decoration: none;
+  color: #111;
+  font-size: 13px;
+}
+
+.project-detail-links .bevel:hover {
+  background: #d9d9d9;
+}
+
+/* =========================
    SERVICES + FAQ
    ========================= */
 
@@ -417,6 +568,40 @@ details p {
 
 .about-body a {
   color: #000080;
+}
+
+/* =========================
+   NOW
+   ========================= */
+
+.now {
+  right: 6vw;
+  top: 42vh;
+  width: min(260px, 80vw);
+}
+
+.now-body {
+  padding: 13px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+
+.now-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: baseline;
+}
+
+.now-row b {
+  min-width: 92px;
+  flex-shrink: 0;
+}
+
+.now-updated {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #555;
 }
 
 /* =========================
@@ -535,6 +720,7 @@ details p {
 .terminal-body p {
   margin: 2px 0;
   word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .terminal-body form {

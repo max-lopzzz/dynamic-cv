@@ -1,0 +1,3 @@
+Beach Chairs -> Windows XP\User Account Pictures\beach.jpg
+Friendly Dog -> Windows XP\User Account Pictures\dog.jpg
+Rubber Ducky -> Windows XP\User Account Pictures\duck.jpg

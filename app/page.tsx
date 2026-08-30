@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Window } from "./components/Window";
 import { Beep } from "./components/Beep";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { Guestbook } from "./components/Guestbook";
 import { Terminal } from "./terminal";
-import { projects } from "./projects";
+import { projects, Category } from "./projects";
 import { drumFill } from "./sound";
+import { nowItems, nowUpdatedAt } from "./now";
 
 type Stage = "boot" | "login" | "desktop";
 const beadArtShareUrl = process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
@@ -16,13 +18,15 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>("boot");
   const [clock, setClock] = useState("");
   const [about, setAbout] = useState(true);
+  const [now, setNow] = useState(false);
   const [portfolio, setPortfolio] = useState(true);
   const [music, setMusic] = useState(false);
   const [hobbies, setHobbies] = useState(false);
   const [guestbook, setGuestbook] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [egg, setEgg] = useState(false);
-  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25, guestbook: 26 });
+  const [projectFilter, setProjectFilter] = useState<"all" | Category>("all");
+  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, now: 23, hobbies: 24, player: 25, terminal: 26, guestbook: 27 });
   const zCounter = useRef(27);
   const keyBuffer = useRef<string[]>([]);
 
@@ -52,6 +56,11 @@ export default function Home() {
   function openAbout() {
     setAbout(true);
     focus("about");
+  }
+
+  function openNow() {
+    setNow(true);
+    focus("now");
   }
 
   useEffect(() => {
@@ -102,6 +111,13 @@ Press ENTER to continue_</pre></main>;
       >
         👤
         <span>About Max</span>
+      </button>
+
+      <button
+        onClick={() => (now ? setNow(false) : openNow())}
+      >
+        🟢
+        <span>Now.exe</span>
       </button>
 
       <a
@@ -182,10 +198,24 @@ Press ENTER to continue_</pre></main>;
             <p>things i've made, broken, fixed, and shipped.</p>
           </div>
 
-          <span>8 ITEMS</span>
+          <span>{projects.length} ITEMS</span>
+        </div>
+        <div className="project-filters">
+          {(["all", "web", "game", "tool"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={projectFilter === option ? "active" : ""}
+              onClick={() => setProjectFilter(option)}
+            >
+              {option === "all" ? "ALL" : option === "web" ? "WEB" : option === "game" ? "GAMES" : "TOOLS"}
+            </button>
+          ))}
         </div>
         <div className="projects">
-          {projects.map(
+          {projects
+            .filter((project) => projectFilter === "all" || project.categories.includes(projectFilter))
+            .map(
             ({
               name,
               copy,
@@ -216,6 +246,10 @@ Press ENTER to continue_</pre></main>;
                 </small>
 
                 <div className="project-links">
+                  <Link href={`/projects/${slug}`}>
+                    details →
+                  </Link>
+
                   <a
                     href={github}
                     target="_blank"
@@ -248,6 +282,7 @@ Press ENTER to continue_</pre></main>;
     </Window>
     )}
     {about && <Window id="about" title="about_max.txt" className="about" zIndex={zMap.about} onFocus={focus} onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
+    {now && <Window id="now" title="now.exe" className="now" zIndex={zMap.now} onFocus={focus} onClose={() => setNow(false)}><div className="now-body">{nowItems.map((item) => <div className="now-row" key={item.label}><b>{item.emoji} {item.label}:</b><span>{item.value}</span></div>)}<p className="now-updated">last updated {nowUpdatedAt}</p></div></Window>}
     {hobbies && <Window id="hobbies" title="hobbies.exe" className="hobbies" zIndex={zMap.hobbies} onFocus={focus} onClose={() => setHobbies(false)}>
       <div className="hobbies-body">
         <div className="hobby-card"><b>🧵 bead art</b><p>I turn pixel-art patterns into perler bead grids — color-matched, no guessing. Built a whole tool for it.</p>{beadArtShareUrl && <iframe src={beadArtShareUrl} className="beadart-embed" title="Current bead art progress" loading="lazy" />}<a href="https://beadart-sable.vercel.app/" target="_blank">open beadart-sable ↗</a></div>
@@ -281,6 +316,18 @@ Press ENTER to continue_</pre></main>;
           }}
         >
           about_max.txt
+        </button>
+      )}
+
+      {now && (
+        <button
+          type="button"
+          className="taskbar-window"
+          onClick={() => {
+            openNow();
+          }}
+        >
+          now.exe
         </button>
       )}
 

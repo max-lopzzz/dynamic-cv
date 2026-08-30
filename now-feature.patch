@@ -1,0 +1,134 @@
+diff --git a/app/globals.css b/app/globals.css
+index 2e4d8f7..6137fcf 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -419,6 +419,40 @@ details p {
+   color: #000080;
+ }
+ 
++/* =========================
++   NOW
++   ========================= */
++
++.now {
++  right: 6vw;
++  top: 42vh;
++  width: min(260px, 80vw);
++}
++
++.now-body {
++  padding: 13px;
++  font-family: Arial, sans-serif;
++  font-size: 13px;
++}
++
++.now-row {
++  display: flex;
++  gap: 8px;
++  margin-bottom: 8px;
++  align-items: baseline;
++}
++
++.now-row b {
++  min-width: 92px;
++  flex-shrink: 0;
++}
++
++.now-updated {
++  margin: 10px 0 0;
++  font-size: 11px;
++  color: #555;
++}
++
+ /* =========================
+    HOBBIES
+    ========================= */
+@@ -535,6 +569,7 @@ details p {
+ .terminal-body p {
+   margin: 2px 0;
+   word-break: break-word;
++  white-space: pre-wrap;
+ }
+ 
+ .terminal-body form {
+diff --git a/app/page.tsx b/app/page.tsx
+index 895fcab..134ff72 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -7,6 +7,7 @@ import { Guestbook } from "./components/Guestbook";
+ import { Terminal } from "./terminal";
+ import { projects } from "./projects";
+ import { drumFill } from "./sound";
++import { nowItems, nowUpdatedAt } from "./now";
+ 
+ type Stage = "boot" | "login" | "desktop";
+ const beadArtShareUrl = process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
+@@ -16,13 +17,14 @@ export default function Home() {
+   const [stage, setStage] = useState<Stage>("boot");
+   const [clock, setClock] = useState("");
+   const [about, setAbout] = useState(true);
++  const [now, setNow] = useState(false);
+   const [portfolio, setPortfolio] = useState(true);
+   const [music, setMusic] = useState(false);
+   const [hobbies, setHobbies] = useState(false);
+   const [guestbook, setGuestbook] = useState(false);
+   const [terminalOpen, setTerminalOpen] = useState(false);
+   const [egg, setEgg] = useState(false);
+-  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25, guestbook: 26 });
++  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, now: 23, hobbies: 24, player: 25, terminal: 26, guestbook: 27 });
+   const zCounter = useRef(27);
+   const keyBuffer = useRef<string[]>([]);
+ 
+@@ -54,6 +56,11 @@ export default function Home() {
+     focus("about");
+   }
+ 
++  function openNow() {
++    setNow(true);
++    focus("now");
++  }
++
+   useEffect(() => {
+     const enter = (e: KeyboardEvent) => { if (e.key === "Enter" && stage === "boot") setStage("login"); };
+     const konami = (e: KeyboardEvent) => {
+@@ -104,6 +111,13 @@ Press ENTER to continue_</pre></main>;
+         <span>About Max</span>
+       </button>
+ 
++      <button
++        onClick={() => (now ? setNow(false) : openNow())}
++      >
++        🟢
++        <span>Now.exe</span>
++      </button>
++
+       <a
+         href="https://github.com/max-lopzzz"
+         target="_blank"
+@@ -248,6 +262,7 @@ Press ENTER to continue_</pre></main>;
+     </Window>
+     )}
+     {about && <Window id="about" title="about_max.txt" className="about" zIndex={zMap.about} onFocus={focus} onClose={() => setAbout(false)}><div className="about-body"><b>Max has logged on.</b><p>Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer.</p><p>Currently making things for NGOs and people who need them.</p><a href="mailto:m.lopz.montn@gmail.com">send email ↗</a></div></Window>}
++    {now && <Window id="now" title="now.exe" className="now" zIndex={zMap.now} onFocus={focus} onClose={() => setNow(false)}><div className="now-body">{nowItems.map((item) => <div className="now-row" key={item.label}><b>{item.emoji} {item.label}:</b><span>{item.value}</span></div>)}<p className="now-updated">last updated {nowUpdatedAt}</p></div></Window>}
+     {hobbies && <Window id="hobbies" title="hobbies.exe" className="hobbies" zIndex={zMap.hobbies} onFocus={focus} onClose={() => setHobbies(false)}>
+       <div className="hobbies-body">
+         <div className="hobby-card"><b>🧵 bead art</b><p>I turn pixel-art patterns into perler bead grids — color-matched, no guessing. Built a whole tool for it.</p>{beadArtShareUrl && <iframe src={beadArtShareUrl} className="beadart-embed" title="Current bead art progress" loading="lazy" />}<a href="https://beadart-sable.vercel.app/" target="_blank">open beadart-sable ↗</a></div>
+@@ -284,6 +299,18 @@ Press ENTER to continue_</pre></main>;
+         </button>
+       )}
+ 
++      {now && (
++        <button
++          type="button"
++          className="taskbar-window"
++          onClick={() => {
++            openNow();
++          }}
++        >
++          now.exe
++        </button>
++      )}
++
+       {hobbies && (
+         <button
+           type="button"

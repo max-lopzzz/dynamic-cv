@@ -1,0 +1,5 @@
+background_1920_1 -> Windows XP\Fun Packs\Winter 2003\Field.jpg
+background_1920_2 -> Windows XP\Fun Packs\Winter 2003\Small Tree.jpg
+background_1920_3 -> Windows XP\Fun Packs\Winter 2003\IceBush.jpg
+background_1920_5 -> Windows XP\Fun Packs\Winter 2003\Icicles.jpg
+background_1920_6 -> Windows XP\Fun Packs\Winter 2003\Branch.jpg

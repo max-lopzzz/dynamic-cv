@@ -1,3 +1,5 @@
+export type Category = "web" | "game" | "tool";
+
 export type Project = {
   name: string;
   copy: string;
@@ -7,6 +9,15 @@ export type Project = {
   status: string;
   github: string;
   demo?: string;
+  categories: Category[];
+  // Optional — only used on the /projects/[slug] detail page.
+  // Leave any of these out and that section just won't render.
+  whatIsIt?: string;
+  whyIMadeIt?: string;
+  features?: string[];
+  thingsLearned?: string[];
+  thingsToChange?: string;
+  screenshot?: string; // path under /public, e.g. "/screenshots/pakupaku.png"
 };
 
 export const projects: Project[] = [
@@ -19,6 +30,19 @@ export const projects: Project[] = [
     status: "in development",
     github: "https://github.com/max-lopzzz/pakupaku",
     demo: "https://pakupaku.m-lopz-montn.workers.dev/",
+    categories: ["web", "tool"],
+    // Example detail-page content — copy this pattern into the other projects when you have time.
+    whyIMadeIt: "Most food trackers feel clinical or judgmental. I wanted something that felt more like a friendly companion than a calorie cop.",
+    features: [
+      "Friendly, low-pressure food logging",
+      "Progress tracking without shame-based messaging",
+      "Custom illustrations for common foods",
+    ],
+    thingsLearned: [
+      "Designing UI copy that avoids diet-culture language is harder than it sounds",
+      "Next.js App Router data fetching patterns",
+    ],
+    thingsToChange: "I'd add offline support earlier — it came up as a request almost immediately after launch.",
   },
   {
     name: "Bead Art Helper",
@@ -29,6 +53,7 @@ export const projects: Project[] = [
     status: "complete",
     github: "https://github.com/max-lopzzz/beadart",
     demo: "https://beadart-sable.vercel.app/",
+    categories: ["tool"],
   },
   {
     name: "BoxBuddy",
@@ -39,6 +64,7 @@ export const projects: Project[] = [
     status: "complete",
     github: "https://github.com/max-lopzzz/boxbuddy",
     demo: "https://boxbuddy-nine.vercel.app/",
+    categories: ["web", "tool"],
   },
   {
     name: "Pokémon Team Picker",
@@ -48,6 +74,7 @@ export const projects: Project[] = [
     technologies: ["JavaScript", "HTML", "CSS"],
     status: "complete",
     github: "https://github.com/max-lopzzz/pokemon_team_picker",
+    categories: ["web", "game"],
   },
   {
     name: "Pawmodoro",
@@ -57,6 +84,7 @@ export const projects: Project[] = [
     technologies: ["TypeScript", "React", "Electron"],
     status: "complete",
     github: "https://github.com/max-lopzzz/pawmodoro",
+    categories: ["tool"],
   },
   {
     name: "One Man Rave",
@@ -66,6 +94,7 @@ export const projects: Project[] = [
     technologies: ["Game Development"],
     status: "complete",
     github: "https://github.com/max-lopzzz/OneManRave",
+    categories: ["game"],
   },
   {
     name: "Pedro No Quiere Pagar Impuestos",
@@ -75,6 +104,7 @@ export const projects: Project[] = [
     technologies: ["Game Development"],
     status: "complete",
     github: "https://github.com/max-lopzzz/pedro-no-quiere-pagar-impuestos",
+    categories: ["game"],
   },
   {
     name: "Sprint de Entrevista",
@@ -84,6 +114,7 @@ export const projects: Project[] = [
     technologies: ["Python", "AI", "Web Development"],
     status: "complete",
     github: "https://github.com/max-lopzzz/sprint-entrevista",
+    categories: ["web", "tool"],
   },
   {
     name: "Dynamic CV",
@@ -94,5 +125,6 @@ export const projects: Project[] = [
     status: "active",
     github: "https://github.com/max-lopzzz/dynamic-cv",
     demo: "https://dynamic-cv-inky.vercel.app/",
+    categories: ["web"],
   },
 ];

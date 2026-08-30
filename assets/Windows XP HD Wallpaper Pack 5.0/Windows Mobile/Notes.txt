@@ -1,0 +1,8 @@
+2002:
+- Fire, Mint and Red were taken from a PhotoDisc CD. The former appears in Pocket PC and the latter two in Smartphone. Note that all of them were heavily altered from their original images by Microsoft, and the versions in this pack are just cropped from the original images.
+
+5.0:
+- Flower was taken directly from a Digital Vision CD for higher quality. 
+- Waterfall is still available but not present due to its vertical aspect ratio, so when downloading from ZeonDownloader it is not wide enough but too tall.
+
+The others are missing because they were either produced by/for Microsoft or they were taken down from Getty Images. 

@@ -4,6 +4,9 @@ import { createClient, type RedisClientType } from "redis";
 const REDIS_URL =
   process.env.KV_REDIS_URL || process.env.REDIS_URL;
 
+const MODERATION_SESSION_SECRET =
+  process.env.MODERATION_SESSION_SECRET;
+
 const KEY = "guestbook:entries";
 const RATE_LIMIT_PREFIX = "guestbook:rate:";
 
@@ -75,6 +78,17 @@ function cleanText(value: unknown, maxLength: number) {
     .slice(0, maxLength);
 }
 
+function isModerator(req: NextRequest) {
+  const authCookie = req.cookies.get(
+    "guestbook_moderator"
+  );
+
+  return (
+    Boolean(MODERATION_SESSION_SECRET) &&
+    authCookie?.value === MODERATION_SESSION_SECRET
+  );
+}
+
 function parseEntry(value: string): Entry | null {
   try {
     const parsed = JSON.parse(value);
@@ -126,13 +140,7 @@ export async function GET(req: NextRequest) {
     const entries = await getEntries(client);
 
     if (moderation === "pending") {
-      // The moderation page will be protected by the auth
-      // cookie handled by /api/guestbook/auth.
-      const authCookie = req.cookies.get(
-        "guestbook_moderator"
-      );
-
-      if (!authCookie?.value) {
+      if (!isModerator(req)) {
         return NextResponse.json(
           { error: "unauthorized" },
           { status: 401 }
@@ -299,11 +307,7 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const authCookie = req.cookies.get(
-    "guestbook_moderator"
-  );
-
-  if (!authCookie?.value) {
+  if (!isModerator(req)) {
     return NextResponse.json(
       { error: "unauthorized" },
       { status: 401 }

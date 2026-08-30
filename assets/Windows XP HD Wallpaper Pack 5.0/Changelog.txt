@@ -1,0 +1,192 @@
+Dates are dd/mm/yy.
+
+Version 5.0 (24/07/22)
+
+Been ages since I've updated this pack! I've been more busy with other projects ever since the last version came out, and there hasn't been much to add until recently - when I bought Autumn from Graphic Obsession.
+
+Fixed a few minor mistakes
+Merged the vertical ones into the main pack, IMO it's easier to maintain when everything's together
+Changed some of the image lists in the readme to a table (unfortunately, I don't have time to do tables for the rest)
+
+Added:
+from XP:
+- Autumn (finally!), Moon flower (the original image used in it has finally been found; getting the actual wallpaper in HD will be very hard/impossible unless I find the designer and they are willing to share it)
+- butterfly, red flower, snowflake (user account pictures - latter two are 1200x1920 only)
+- Cameron (Malaysian Starter Edition wallpaper)
+from Mobile:
+- Fire, Mint, Red (note that the versions Microsoft used have heavily altered colors)
+- Waterfall (only in 1200x1920 because I don't have a copy that's at least 1920px wide)
+from MSN/WLM:
+- Fish (better version)
+
+===============================================================
+
+Version 4.0 (26/05/20)
+
+Created an additional pack of vertical wallpapers, which are recommended for phones and vertical monitors. I advise you to copy it into the main pack. 
+
+Added:
+- Vertical versions of wallpapers that I have in high enough res for that 
+from Plus! 98:
+- WO_WALLP (Beta World Traveler wallpaper)
+from XP:
+- 4K versions of some wallpapers
+- A better version of Azul
+- GalleryPlayer sample pictures
+- Village Home and Coastline in Greece (Starter Edition tutorial graphic) (I used the horizontal version instead; the vertical one used in XP Starter is titled Entrance to Village Home)
+not from any OS:
+- The previously removed stock photos (now that I'm no longer stuck to DeviantArt's limits)
+
+===============================================================
+
+Version 3.2 (25/10/19)
+
+Corrected "Surf" to "Surfer" 
+Decapitalized user account picture filenames
+Replaced duplicates with txt files showing you where you can find them
+
+Added:
+- An HTML readme 
+from XP:
+- Above View of Field Marigolds (Scanner & Camera Wizard example pic)
+- airplane, ball (user account picture)
+- At the Arch, Big Wave (MCE sample pictures; now all of them are there except Fish)
+- Blue hills, Water lilies (sample pictures; at last!)
+- Proper version of Bliss. Previously a version of Bliss with extra saturation and contrast to match XP's was included. However, I realised that Corbis RGB's color space is problematic on most programs, so I recropped it on paint.net, pasted it into a new file and here we are. The brighter ones are still included for those who prefer them. (the problematic color space also affects ones such as Azul and Wind, and unfortunately I can't do anything about those unless I actually buy them)
+not from any OS:
+- Fresh Green Pastures, Green Hills and Clouds (taken by Charles O'Rear)
+- Frost Glistening on Trees, Snow at Zao Park (taken by Image Plan)
+- Palm Trees (taken by Mark Karrass)
+Removed:
+- A couple of stock photos to save space. If you want them, just ask me. (I've also had to compress some images slightly further; thanks a lot, DA and your 200MB limit)
+
+===============================================================
+
+Version 3.1 (26/07/19)
+
+Added:
+from XP:
+- 677-AG-007-U6120, AX001905, WD002091 (from Winter Fun Pack 2004)
+- 4K version of Ascent
+- Astronaut, Beach, Dog (latter two were previously not included as I felt cropping ruins them, though some people might not mind) (user account pictures)
+- graduation_title, mother_01, mother_02, spring_01 (from Digital Photography Fun Pack)
+- Happy_Holidays, Happy_New_Year (WMM backgrounds, from Winter Fun Pack 2003)
+- Surf (beta sample picture)
+not from XP:
+- Hearts (from MSN/WLM)
+- Snow Trees (from 2000) (finally! this is one of my favorites)
+- Better version of a few wallpapers, taken directly from PhotoDisc and Digital Vision CDs
+not from any OS: 
+- Dewdrops on a Flower Petal, Ski Resort, Winter Forest (taken by Hans Wiesenhofer, who also took Snow Trees from 2000)
+- Blue sky and clouds above grassy hill, Pink and Blue Water Drop (taken by Don Farrall, who also took Drip)
+
+Now I really wish I could finally get my hands on Autumn and Blue hills, at least. Sadly, I'll never be able to get Purple flower or Chateau from Windows 2000 since those were rights-managed. But hey, enjoy the new stuff, some of which you've most likely not even saw before.
+
+===============================================================
+
+Version 3.0 (30/05/19)
+
+Moved all the stuff from Longhorn, Vista and 7 to a new pack. I have done this as the pack was increasingly growing and Vista and 7 wallpapers were starting to make up a large portion of it. Although this pack still has non-XP stuff, it will keep its title since XP wallpapers are the vast majority.
+
+Added:
+from XP:
+- Guest (user account picture)
+- Guitar (user account picture)
+- MCE Party Mode Frost skin backgrounds 2, 5, 6 
+- MCE Party Mode Nature skin backgrounds A, B, D
+- Minden Pictures version of Cerros_Torre_y_Fitz_Roy (from XP Starter Edition)
+- A couple of wallpaper versions of XP Starter Edition's graphics
+not from XP:
+- Car, Planets (from MSN/WLM)
+- CP_scn01, CP_scn11, CP_scn15, fa_wallp, WO_SCN01, WO_SCN04, WO_SCN05, WO_SCN07-09, WO_SCN11, WO_SCN12, WO_SCN14 (from Plus! 98)
+- Flower (from Windows Mobile 5.x/6.x)
+- Soccer Ball (user account picture; from MSN/WLM)
+not from any OS:
+- Birth of a Star, Eye and Streaks of Light, Stars and Streaks #1 and #2 (created by Digital Art, who also created Vortec space)
+- Cook Island, Foggy Hills in Sequoia National Park, San Francisco-Oakland Bay Bridge at Twilight (taken by Bill Ross, who also took Azul and Tulips)
+
+===============================================================
+
+Version 2.1 (28/04/19)
+
+Created subfolders in the Vista and 7 folders
+
+Added:
+from XP:
+- Car, Duck (user account pictures)
+- Freestyle, Overlooking Rio (MCE sample pictures)
+not from XP:
+- Desert, Penguins (from 7; sample pictures)
+- Highway Winding Through Countryside (from a Blackcomb UI demo)
+- img18 except the city isn't blurred out (from 7)
+- img37 (from Vista Beta)
+- img723, img730, img734, img740, img742 (from Vista Starter)
+- PhotoDisc (from Plus! 98)
+- usertile4, usertile7 (from Vista; user account pictures)
+- usertile10, usertile44 (from 7; user account pictures)
+not from any OS:
+- African desert at sunset (taken by the same photographer as Bliss, Highway Winding Through Countryside and Red moon desert)
+- Close-Up of a Metal Globe (taken by the same photographer as the PhotoDisc wallpaper)
+- Flowers of California Poppy (taken by the same photographer as Aero Woods, Ascent, Blue hills and Winter)
+
+===============================================================
+
+Version 2.0 (08/03/19)
+
+The "Other" folder is now split into folders for each OS or application.
+
+Added: 
+from XP:
+- Cat (user account picture)
+- Follow me
+- Kick (user account picture)
+- A version of Wind with similar saturation and contrast as in the XP version
+- The first BG from the Frost MCE Party Mode skin (taken from the downloadable Japan theme for Windows 7)
+- Plus! Space
+- Several XP Starter Edition wallpapers
+not from XP:
+- Chrysanthemum (sample picture, from 7)
+- Excalibur/WO_SCN07 (from a Longhorn demo and Plus! 98)
+- Fish (from MSN/Windows Live Messenger)
+- Forest (sample picture, from Vista)
+- Frog (from a Longhorn demo)
+- Gold Petals (from 2000)
+- img733 (from Vista Starter)
+- Longhorn Avenue (from Longhorn)
+- Solar Eclipse (from 2000)
+- WO_SCN05 (from Plus! 98)
+- Default wallpaper from Longhorn build 4074
+not from any OS:
+- Don't follow me (taken by the same photographer as Follow me)
+- Computer-Generated Starburst (created by the same company as Vortec space)
+- Los Angeles at Twilight (taken by the same photographer as Azul and Tulips)
+
+Also each wallpaper is now at maximum quality, so while the filesizes are larger now they'll be much more pleasing to look at.
+
+===============================================================
+
+Version 1.1 (24/12/18)
+
+Added: 
+- Plus! Aquarium (from Plus! XP/XP MCE)
+- Bliss in 4K
+- Drip (user account picture)
+- Friend
+- Plus! Aquarium2/Ocean (from Plus! XP/XP MCE)
+- Radiance
+- Winter (sample picture)
+- Aero Woods
+- Desert Landscape (sample picture, from Vista)
+- img721
+- Koala (sample picture, from 7)
+- Lavender (from MSN/Windows Live Messenger)
+- Star Field with Colorful Streaks (not from any OS, although I included it as a nice bonus as it was made by the same company as Vortec space)
+- Default wallpapers from Longhorn builds 4051, 4093 and 5048
+
+Thanks to someone from BetaArchive for providing high quality versions of most of these!
+
+===============================================================
+
+Version 1.0 (15/12/18)
+
+Initial release.
