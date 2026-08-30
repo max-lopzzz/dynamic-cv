@@ -6,17 +6,21 @@ import { Window } from "./components/Window";
 import { Beep } from "./components/Beep";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { Guestbook } from "./components/Guestbook";
+import { WallOfKindWords } from "./components/WallOfKindWords";
 import { AssetIcon } from "./components/AssetIcon";
 import { Terminal } from "./terminal";
 
 import { projects, Category } from "./projects";
 import { playWindowsSound } from "./sound";
 import { nowItems, nowUpdatedAt } from "./now";
+import { funStats } from "./devstats";
 
 type Stage = "boot" | "login" | "desktop";
 
 const beadArtShareUrl =
   process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
+
+const GITHUB_USERNAME = "max-lopzzz";
 
 const KONAMI = [
   "arrowup",
@@ -43,6 +47,8 @@ const icons = {
   terminal: "/assets/icons/Manage your Server.ico",
   guestbook: "/assets/icons/List File.ico",
   hireMe: "/assets/icons/User Support.ico",
+  devStats: "/assets/icons/System Properties.ico",
+  wall: "/assets/icons/Hearts.ico",
 };
 
 export default function Home() {
@@ -57,6 +63,12 @@ export default function Home() {
   const [guestbook, setGuestbook] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [hireMe, setHireMe] = useState(false);
+  const [devStats, setDevStats] = useState(false);
+  const [wall, setWall] = useState(false);
+  const [githubRepoCount, setGithubRepoCount] =
+    useState<number | null>(null);
+  const [githubCommitCount, setGithubCommitCount] =
+    useState<number | null>(null);
 
   const [egg, setEgg] = useState(false);
 
@@ -76,9 +88,11 @@ export default function Home() {
     guestbook: 27,
     projectDetails: 28,
     hireMe: 29,
+    devStats: 30,
+    wall: 31,
   });
 
-  const zCounter = useRef(30);
+  const zCounter = useRef(32);
   const keyBuffer = useRef<string[]>([]);
 
   function focus(id: string) {
@@ -136,6 +150,18 @@ export default function Home() {
     playWindowsSound("open");
   }
 
+  function openDevStats() {
+    setDevStats(true);
+    focus("devStats");
+    playWindowsSound("open");
+  }
+
+  function openWall() {
+    setWall(true);
+    focus("wall");
+    playWindowsSound("open");
+  }
+
   function openProjectDetails(
     project: (typeof projects)[number]
   ) {
@@ -155,6 +181,55 @@ export default function Home() {
     setOpen(false);
     playWindowsSound("close");
   }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(
+      `https://api.github.com/users/${GITHUB_USERNAME}`
+    )
+      .then((res) =>
+        res.ok ? res.json() : null
+      )
+      .then((data) => {
+        if (
+          !cancelled &&
+          typeof data?.public_repos === "number"
+        ) {
+          setGithubRepoCount(data.public_repos);
+        }
+      })
+      .catch(() => {
+        // Silently fall back to the local project count below.
+      });
+
+    fetch(
+      `https://api.github.com/search/commits?q=author:${GITHUB_USERNAME}&per_page=1`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+        },
+      }
+    )
+      .then((res) =>
+        res.ok ? res.json() : null
+      )
+      .then((data) => {
+        if (
+          !cancelled &&
+          typeof data?.total_count === "number"
+        ) {
+          setGithubCommitCount(data.total_count);
+        }
+      })
+      .catch(() => {
+        // Silently omit the commits row below.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const handleEnter = (event: KeyboardEvent) => {
@@ -483,6 +558,21 @@ Press ENTER to continue_`}</pre>
           <span>Hire Me.exe</span>
         </button>
 
+        <button
+          type="button"
+          onClick={() =>
+            devStats
+              ? closeWindow(setDevStats)
+              : openDevStats()
+          }
+        >
+          <AssetIcon
+            src={icons.devStats}
+          />
+
+          <span>Dev Stats.exe</span>
+        </button>
+
         <a
           href="https://github.com/max-lopzzz"
           target="_blank"
@@ -590,6 +680,21 @@ Press ENTER to continue_`}</pre>
           />
 
           <span>Guestbook</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            wall
+              ? closeWindow(setWall)
+              : openWall()
+          }
+        >
+          <AssetIcon
+            src={icons.wall}
+          />
+
+          <span>Kind Words</span>
         </button>
       </aside>
 
@@ -1219,6 +1324,75 @@ Press ENTER to continue_`}</pre>
       )}
 
       {/* ==================================================
+          DEV STATS
+          ================================================== */}
+
+      {devStats && (
+        <Window
+          id="devStats"
+          title="devstats.exe"
+          className="dev-stats"
+          zIndex={zMap.devStats}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setDevStats)
+          }
+        >
+          <div className="dev-stats-body">
+            <div className="dev-stats-row">
+              <b>📁 projects</b>
+              <span>
+                {String(
+                  projects.length
+                ).padStart(2, "0")}
+              </span>
+            </div>
+
+            <div className="dev-stats-row">
+              <b>🐙 github repos</b>
+              <span>
+                {String(
+                  githubRepoCount ??
+                    projects.length
+                ).padStart(2, "0")}
+                {githubRepoCount === null && "*"}
+              </span>
+            </div>
+
+            {githubCommitCount !== null && (
+              <div className="dev-stats-row">
+                <b>⌨️ commits</b>
+                <span>
+                  {githubCommitCount.toLocaleString()}
+                </span>
+              </div>
+            )}
+
+            {funStats.map((stat) => (
+              <div
+                className="dev-stats-row"
+                key={stat.label}
+              >
+                <b>
+                  {stat.emoji}{" "}
+                  {stat.label}
+                </b>
+                <span>{stat.value}</span>
+              </div>
+            ))}
+
+            {githubRepoCount === null && (
+              <p className="dev-stats-note">
+                * live count unavailable,
+                showing local project
+                count
+              </p>
+            )}
+          </div>
+        </Window>
+      )}
+
+      {/* ==================================================
           HOBBIES
           ================================================== */}
 
@@ -1365,6 +1539,30 @@ Press ENTER to continue_`}</pre>
       )}
 
       {/* ==================================================
+          WALL OF KIND WORDS
+          ================================================== */}
+
+      {wall && (
+        <Window
+          id="wall"
+          title="kind_words.exe"
+          className="wall"
+          zIndex={zMap.wall}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setWall)
+          }
+        >
+          <WallOfKindWords
+            onSign={() => {
+              setWall(false);
+              openGuestbook();
+            }}
+          />
+        </Window>
+      )}
+
+      {/* ==================================================
           TASKBAR
           ================================================== */}
 
@@ -1426,6 +1624,16 @@ Press ENTER to continue_`}</pre>
           </button>
         )}
 
+        {devStats && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openDevStats}
+          >
+            devstats.exe
+          </button>
+        )}
+
         {hobbies && (
           <button
             type="button"
@@ -1469,6 +1677,16 @@ Press ENTER to continue_`}</pre>
             }
           >
             guestbook.exe
+          </button>
+        )}
+
+        {wall && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openWall}
+          >
+            kind_words.exe
           </button>
         )}
 

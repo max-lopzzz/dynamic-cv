@@ -586,6 +586,117 @@ color: #555;
 }
 
 /* =========================
+WALL OF KIND WORDS
+========================= */
+
+.wall {
+left: 30vw;
+top: 8vh;
+width: min(360px, 84vw);
+height: min(64vh, 520px);
+}
+
+.wall-body {
+padding: 14px;
+font-family: Arial, sans-serif;
+font-size: 13px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+height: calc(100% - 25px);
+}
+
+.wall-intro {
+margin: 0;
+color: #444;
+}
+
+.wall-entries {
+flex: 1;
+overflow: auto;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.wall-card {
+background: #fffde7;
+border: 2px inset #fff;
+padding: 10px 12px;
+transform: rotate(-0.6deg);
+}
+
+.wall-card:nth-child(even) {
+transform: rotate(0.6deg);
+}
+
+.wall-message {
+margin: 0 0 8px;
+line-height: 1.4;
+font-style: italic;
+}
+
+.wall-name {
+margin: 0;
+font-weight: bold;
+text-align: right;
+color: #a3005c;
+}
+
+.wall-empty {
+margin: 0;
+color: #666;
+text-align: center;
+padding: 20px 0;
+}
+
+.wall-cta {
+align-self: flex-start;
+cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
+}
+
+/* =========================
+DEV STATS
+========================= */
+
+.dev-stats {
+left: 6vw;
+top: 40vh;
+width: min(240px, 80vw);
+}
+
+.dev-stats-body {
+padding: 13px;
+font-family: Arial, sans-serif;
+font-size: 13px;
+}
+
+.dev-stats-row {
+display: flex;
+justify-content: space-between;
+align-items: baseline;
+gap: 10px;
+padding: 4px 0;
+border-bottom: 1px dotted #999;
+}
+
+.dev-stats-row:last-child {
+border-bottom: 0;
+}
+
+.dev-stats-row span {
+font-family: "Pixelify Sans", monospace;
+color: #000080;
+white-space: nowrap;
+}
+
+.dev-stats-note {
+margin: 10px 0 0;
+font-size: 10px;
+color: #555;
+}
+
+/* =========================
 HOBBIES
 ========================= */
 
