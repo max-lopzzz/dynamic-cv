@@ -1,0 +1,348 @@
+From be76946f5a243223e0d43d431bae14291d7d5e1d Mon Sep 17 00:00:00 2001
+From: Maximiliano <m.lopz.montn@gmail.com>
+Date: Sat, 29 Aug 2026 20:02:29 +0000
+Subject: [PATCH] feat: retro guestbook.exe backed by Vercel Redis
+ (KV_REDIS_URL)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+New api/guestbook route (GET/POST) using a real Redis TCP client
+(node-redis) against KV_REDIS_URL — Vercel's current Redis product only
+provides a redis:// connection string, not the older Upstash REST API.
+Connection is cached across warm serverless invocations. Falls back to
+a clean 'not configured' response when the env var isn't set, instead
+of crashing the route.
+
+New Guestbook.tsx window matching the existing win98 styling, wired
+into the desktop icons and the terminal ('guestbook' / 'sign' commands).
+Basic spam guard: honeypot field, name/message length caps. Entry text
+renders through React (no dangerouslySetInnerHTML), so it's inert even
+if someone submits HTML/script in a message.
+
+Verified end-to-end against a local Redis instance: empty GET, POST
+persists and round-trips, honeypot silently drops spam, and the whole
+route degrades cleanly to 'not configured' with KV_REDIS_URL unset.
+---
+ README.md                    |  6 ++-
+ app/api/guestbook/route.ts   | 80 +++++++++++++++++++++++++++++++
+ app/components/Guestbook.tsx | 92 ++++++++++++++++++++++++++++++++++++
+ app/globals.css              | 19 +++++++-
+ app/page.tsx                 | 11 +++--
+ app/terminal.tsx             |  5 +-
+ package.json                 |  3 +-
+ 7 files changed, 207 insertions(+), 9 deletions(-)
+ create mode 100644 app/api/guestbook/route.ts
+ create mode 100644 app/components/Guestbook.tsx
+
+diff --git a/README.md b/README.md
+index d978990..54c32fb 100644
+--- a/README.md
++++ b/README.md
+@@ -19,4 +19,8 @@ npm run dev
+ 2. In Vercel, choose **Add New → Project** and import the repository.
+ 3. Keep the detected **Next.js** settings and select **Deploy**.
+ 
+-No environment variables are required. The app is fully static.
++The core portfolio needs no environment variables and is fully static. The
++guestbook is optional: to turn it on, add a **Redis** store in Vercel
++(**Storage → Create Database → Redis**) and connect it to the project —
++this auto-injects `KV_REDIS_URL`. Without it, the guestbook window shows a
++"not wired up yet" message instead of breaking the page.
+diff --git a/app/api/guestbook/route.ts b/app/api/guestbook/route.ts
+new file mode 100644
+index 0000000..cc3a513
+--- /dev/null
++++ b/app/api/guestbook/route.ts
+@@ -0,0 +1,80 @@
++// app/api/guestbook/route.ts — tiny retro guestbook, backed by Vercel's Redis integration.
++//
++// Env var (auto-injected once you attach a "Redis" store to the project in the Vercel
++// dashboard — Storage tab → Create Database → Redis):
++//   KV_REDIS_URL   (a redis:// connection string — this is a real TCP Redis, not a REST API)
++//
++// Without it, GET reports { configured: false } and POST returns 503 — the UI shows a
++// friendly "not wired up yet" message instead of crashing.
++// This must run on the Node.js runtime (the default for route handlers) since it opens a
++// real TCP socket — it will NOT work on the Edge runtime.
++
++import { NextRequest, NextResponse } from "next/server";
++import { createClient, type RedisClientType } from "redis";
++
++const REDIS_URL = process.env.KV_REDIS_URL || process.env.REDIS_URL;
++const KEY = "guestbook:entries";
++const MAX_ENTRIES = 50;
++const NAME_MAX = 40;
++const MESSAGE_MAX = 240;
++
++type Entry = { name: string; message: string; ts: number };
++
++function configured() {
++  return Boolean(REDIS_URL);
++}
++
++// Reuse one connection across invocations (serverless functions get reused between
++// requests on the same warm instance) instead of opening a new TCP connection every time.
++let clientPromise: Promise<RedisClientType> | null = null;
++
++async function getClient(): Promise<RedisClientType> {
++  if (!REDIS_URL) throw new Error("not_configured");
++  if (!clientPromise) {
++    const client = createClient({ url: REDIS_URL }) as RedisClientType;
++    client.on("error", () => { /* swallow — surfaced via the try/catch at the call site */ });
++    clientPromise = client.connect().then(() => client).catch((err) => { clientPromise = null; throw err; });
++  }
++  return clientPromise;
++}
++
++export async function GET() {
++  if (!configured()) return NextResponse.json({ entries: [], configured: false });
++  try {
++    const client = await getClient();
++    const raw = await client.lRange(KEY, 0, MAX_ENTRIES - 1);
++    const entries: Entry[] = raw
++      .map((s) => { try { return JSON.parse(s); } catch { return null; } })
++      .filter(Boolean);
++    return NextResponse.json({ entries, configured: true });
++  } catch {
++    return NextResponse.json({ entries: [], configured: true, error: "redis_unreachable" }, { status: 502 });
++  }
++}
++
++export async function POST(req: NextRequest) {
++  if (!configured()) return NextResponse.json({ error: "not_configured" }, { status: 503 });
++
++  let body: unknown;
++  try { body = await req.json(); } catch { return NextResponse.json({ error: "bad_request" }, { status: 400 }); }
++  const b = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
++
++  // Honeypot: a real visitor never fills this hidden field. Silently accept-and-drop bots.
++  if (typeof b.website === "string" && b.website.trim()) {
++    return NextResponse.json({ ok: true });
++  }
++
++  const name = String(b.name || "").trim().slice(0, NAME_MAX);
++  const message = String(b.message || "").trim().slice(0, MESSAGE_MAX);
++  if (!name || !message) return NextResponse.json({ error: "bad_request" }, { status: 400 });
++
++  const entry: Entry = { name, message, ts: Date.now() };
++  try {
++    const client = await getClient();
++    await client.lPush(KEY, JSON.stringify(entry));
++    await client.lTrim(KEY, 0, MAX_ENTRIES - 1);
++  } catch {
++    return NextResponse.json({ error: "redis_unreachable" }, { status: 502 });
++  }
++  return NextResponse.json({ ok: true, entry });
++}
+diff --git a/app/components/Guestbook.tsx b/app/components/Guestbook.tsx
+new file mode 100644
+index 0000000..b0115e7
+--- /dev/null
++++ b/app/components/Guestbook.tsx
+@@ -0,0 +1,92 @@
++"use client";
++import { FormEvent, useEffect, useState } from "react";
++import { beep } from "../sound";
++
++type Entry = { name: string; message: string; ts: number };
++type Status = "idle" | "loading" | "sending" | "error" | "unconfigured";
++
++export function Guestbook() {
++  const [entries, setEntries] = useState<Entry[]>([]);
++  const [name, setName] = useState("");
++  const [message, setMessage] = useState("");
++  const [website, setWebsite] = useState(""); // honeypot, must stay empty
++  const [status, setStatus] = useState<Status>("loading");
++
++  useEffect(() => {
++    let cancelled = false;
++    fetch("/api/guestbook")
++      .then((r) => r.json())
++      .then((d) => {
++        if (cancelled) return;
++        setEntries(Array.isArray(d.entries) ? d.entries : []);
++        setStatus(d.configured ? "idle" : "unconfigured");
++      })
++      .catch(() => { if (!cancelled) setStatus("error"); });
++    return () => { cancelled = true; };
++  }, []);
++
++  async function submit(e: FormEvent) {
++    e.preventDefault();
++    if (!name.trim() || !message.trim() || status === "sending") return;
++    setStatus("sending");
++    try {
++      const r = await fetch("/api/guestbook", {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++        body: JSON.stringify({ name, message, website }),
++      });
++      if (!r.ok) throw new Error(String(r.status));
++      const d = await r.json();
++      if (d.entry) setEntries((old) => [d.entry, ...old].slice(0, 50));
++      setMessage("");
++      beep();
++      setStatus("idle");
++    } catch {
++      setStatus("error");
++    }
++  }
++
++  return (
++    <div className="guestbook-body">
++      <p className="gb-intro">Sign in, say hi, leave your mark. 📼</p>
++
++      <form onSubmit={submit} className="gb-form">
++        <input
++          value={name} onChange={(e) => setName(e.target.value)}
++          placeholder="your name" maxLength={40} required disabled={status === "unconfigured"}
++        />
++        <textarea
++          value={message} onChange={(e) => setMessage(e.target.value)}
++          placeholder="leave a message..." maxLength={240} rows={3} required disabled={status === "unconfigured"}
++        />
++        {/* honeypot — hidden from real visitors via CSS, invisible to screen readers */}
++        <input
++          value={website} onChange={(e) => setWebsite(e.target.value)}
++          className="gb-honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" name="website"
++        />
++        <button className="bevel" disabled={status === "sending" || status === "unconfigured"}>
++          {status === "sending" ? "signing…" : "sign guestbook →"}
++        </button>
++      </form>
++
++      {status === "error" && <p className="gb-note">couldn&apos;t reach the guestbook — try again in a bit?</p>}
++      {status === "unconfigured" && <p className="gb-note">guestbook backend isn&apos;t wired up yet — check back soon.</p>}
++
++      <div className="gb-entries">
++        {status === "loading" && <p className="gb-empty">loading…</p>}
++        {status !== "loading" && status !== "unconfigured" && entries.length === 0 && (
++          <p className="gb-empty">be the first to sign!</p>
++        )}
++        {entries.map((entry, i) => (
++          <div key={entry.ts + "-" + i} className="gb-entry">
++            <div className="gb-entry-head">
++              <b>{entry.name}</b>
++              <time>{new Date(entry.ts).toLocaleDateString()}</time>
++            </div>
++            <p>{entry.message}</p>
++          </div>
++        ))}
++      </div>
++    </div>
++  );
++}
+diff --git a/app/globals.css b/app/globals.css
+index ac8ef8a..d9327e3 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -1,5 +1,5 @@
+ @import url("https://fonts.googleapis.com/css2?family=VT323&family=Pixelify+Sans:wght@400;700&display=swap");
+-*{box-sizing:border-box;border-radius:0!important}html,body{margin:0;min-height:100%;font-family:"Pixelify Sans",monospace}button,a{font:inherit;cursor:pointer}.boot{height:100vh;background:#030303;color:#c9ffb5;padding:8vh 10vw;font:28px/1.25 VT323,monospace}.boot pre{white-space:pre-wrap;word-break:break-word;margin:0}.login{min-height:100vh;background:#008080;display:grid;place-items:center}.bevel,.window{background:#c0c0c0;box-shadow:inset -1px -1px #0a0a0a,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dedede}.bevel{border:0;padding:5px 14px}.desktop{height:100vh;overflow:hidden;background:#008080;color:#111}.wallpaper{position:fixed;inset:0;background:linear-gradient(135deg,#008080 0 50%,#087977 50%);opacity:.9}.desktop-icons{position:fixed;z-index:10;top:18px;left:16px;display:grid;gap:17px}.desktop-icons a,.desktop-icons button{border:0;background:transparent;color:white;text-shadow:1px 1px #000;text-decoration:none;display:grid;gap:2px;justify-items:center;font-size:36px}.desktop-icons span{font-size:12px}.window{position:absolute;z-index:20;border:2px solid #fff;box-shadow:inset -1px -1px #111,inset 1px 1px #fff,inset -2px -2px #777,inset 2px 2px #ddd}.titlebar{height:25px;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:3px 5px;display:flex;justify-content:space-between;align-items:center;font-weight:bold}.titlebar button{width:18px;height:18px;padding:0;border:1px outset #fff;background:#c0c0c0;font-weight:bold}.portfolio{left:15vw;top:7vh;width:min(720px,70vw);height:min(78vh,700px)}.menu{padding:4px 8px;border-bottom:1px solid #888;display:flex;gap:20px;font-family:Arial,sans-serif;font-size:13px}.portfolio-content{height:calc(100% - 47px);overflow:auto;background:#e8e6de url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath fill='%23c7e0e1' fill-opacity='.4' d='M0 0h2v2H0zM3 3h2v2H3z'/%3E%3C/svg%3E");padding:16px}.banner{background:#2e6195;color:#fff;padding:19px;border:3px ridge #fff;text-shadow:2px 2px #103452}.banner p{margin:0;font-size:13px}.banner h1{margin:2px 0;font:48px VT323,monospace}.intro98{display:flex;gap:15px;align-items:center;background:#fffde7;border:2px inset #fff;padding:12px;margin:14px 0}.pixel-face{font:48px VT323,monospace;color:#f08a2b}.portfolio-content h2{font-size:17px;border-bottom:2px dotted #555;padding-bottom:4px}.projects{display:grid;grid-template-columns:1fr 1fr;gap:10px}.project98{color:#111;text-decoration:none;background:#c0c0c0;padding:10px;box-shadow:inset -1px -1px #111,inset 1px 1px #fff}.project98:hover{background:#d9d9d9}.project98 p{font-family:Arial,sans-serif;font-size:12px;min-height:32px}.meter{height:12px;background:#fff;border:2px inset #aaa}.meter i{display:block;height:100%;background:#000080}.project98 small{font:11px Arial,sans-serif}.services{display:flex;flex-wrap:wrap;gap:8px}.services span{padding:7px;background:#d7d7d7;border:2px outset #fff}details{margin:7px 0;border:2px outset #fff;background:#d8d8d8;padding:7px}summary{cursor:pointer}details p{background:#fff;padding:8px;margin:8px 0 0;font-family:Arial,sans-serif;font-size:13px}.about{right:6vw;top:17vh;width:260px}.about-body,.player{padding:13px;font-family:Arial,sans-serif;font-size:13px}.about-body a{color:#000080}.player{right:8vw;bottom:80px;padding:12px}.taskbar{position:fixed;z-index:50;bottom:0;left:0;right:0;height:42px;background:#c0c0c0;border-top:2px outset #fff;display:flex;align-items:center;gap:8px;padding:4px}.taskbar span{border:2px inset #fff;padding:4px;flex:1;font:13px Arial,sans-serif}.taskbar time{font:13px Arial,sans-serif;border:2px inset #fff;padding:5px}.scanlines,.crt-roll{position:fixed;pointer-events:none;inset:0;z-index:2147483647;mix-blend-mode:overlay}.scanlines{background:repeating-linear-gradient(0deg,#0001 0 1px,transparent 1px 4px)}.crt-roll{z-index:2147483646;background:linear-gradient(transparent 35%,#fff1 50%,transparent 65%);animation:roll 7s linear infinite}@keyframes roll{from{transform:translateY(-100%)}to{transform:translateY(100%)}}@media(max-width:700px){.portfolio{left:4vw;top:8vh;width:92vw;height:75vh}.about{display:none}.projects{grid-template-columns:1fr}.desktop-icons{display:none}.banner h1{font-size:38px}.taskbar{height:37px}.window{position:absolute}.boot{font-size:23px}.hobbies,.terminal-window{display:none}}
++*{box-sizing:border-box;border-radius:0!important}html,body{margin:0;min-height:100%;font-family:"Pixelify Sans",monospace}button,a{font:inherit;cursor:pointer}.boot{height:100vh;background:#030303;color:#c9ffb5;padding:8vh 10vw;font:28px/1.25 VT323,monospace}.boot pre{white-space:pre-wrap;word-break:break-word;margin:0}.login{min-height:100vh;background:#008080;display:grid;place-items:center}.bevel,.window{background:#c0c0c0;box-shadow:inset -1px -1px #0a0a0a,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dedede}.bevel{border:0;padding:5px 14px}.desktop{height:100vh;overflow:hidden;background:#008080;color:#111}.wallpaper{position:fixed;inset:0;background:linear-gradient(135deg,#008080 0 50%,#087977 50%);opacity:.9}.desktop-icons{position:fixed;z-index:10;top:18px;left:16px;display:grid;gap:17px}.desktop-icons a,.desktop-icons button{border:0;background:transparent;color:white;text-shadow:1px 1px #000;text-decoration:none;display:grid;gap:2px;justify-items:center;font-size:36px}.desktop-icons span{font-size:12px}.window{position:absolute;z-index:20;border:2px solid #fff;box-shadow:inset -1px -1px #111,inset 1px 1px #fff,inset -2px -2px #777,inset 2px 2px #ddd}.titlebar{height:25px;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:3px 5px;display:flex;justify-content:space-between;align-items:center;font-weight:bold}.titlebar button{width:18px;height:18px;padding:0;border:1px outset #fff;background:#c0c0c0;font-weight:bold}.portfolio{left:15vw;top:7vh;width:min(720px,70vw);height:min(78vh,700px)}.menu{padding:4px 8px;border-bottom:1px solid #888;display:flex;gap:20px;font-family:Arial,sans-serif;font-size:13px}.portfolio-content{height:calc(100% - 47px);overflow:auto;background:#e8e6de url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath fill='%23c7e0e1' fill-opacity='.4' d='M0 0h2v2H0zM3 3h2v2H3z'/%3E%3C/svg%3E");padding:16px}.banner{background:#2e6195;color:#fff;padding:19px;border:3px ridge #fff;text-shadow:2px 2px #103452}.banner p{margin:0;font-size:13px}.banner h1{margin:2px 0;font:48px VT323,monospace}.intro98{display:flex;gap:15px;align-items:center;background:#fffde7;border:2px inset #fff;padding:12px;margin:14px 0}.pixel-face{font:48px VT323,monospace;color:#f08a2b}.portfolio-content h2{font-size:17px;border-bottom:2px dotted #555;padding-bottom:4px}.projects{display:grid;grid-template-columns:1fr 1fr;gap:10px}.project98{color:#111;text-decoration:none;background:#c0c0c0;padding:10px;box-shadow:inset -1px -1px #111,inset 1px 1px #fff}.project98:hover{background:#d9d9d9}.project98 p{font-family:Arial,sans-serif;font-size:12px;min-height:32px}.meter{height:12px;background:#fff;border:2px inset #aaa}.meter i{display:block;height:100%;background:#000080}.project98 small{font:11px Arial,sans-serif}.services{display:flex;flex-wrap:wrap;gap:8px}.services span{padding:7px;background:#d7d7d7;border:2px outset #fff}details{margin:7px 0;border:2px outset #fff;background:#d8d8d8;padding:7px}summary{cursor:pointer}details p{background:#fff;padding:8px;margin:8px 0 0;font-family:Arial,sans-serif;font-size:13px}.about{right:6vw;top:17vh;width:260px}.about-body,.player{padding:13px;font-family:Arial,sans-serif;font-size:13px}.about-body a{color:#000080}.player{right:8vw;bottom:80px;padding:12px}.taskbar{position:fixed;z-index:50;bottom:0;left:0;right:0;height:42px;background:#c0c0c0;border-top:2px outset #fff;display:flex;align-items:center;gap:8px;padding:4px}.taskbar span{border:2px inset #fff;padding:4px;flex:1;font:13px Arial,sans-serif}.taskbar time{font:13px Arial,sans-serif;border:2px inset #fff;padding:5px}.scanlines,.crt-roll{position:fixed;pointer-events:none;inset:0;z-index:2147483647;mix-blend-mode:overlay}.scanlines{background:repeating-linear-gradient(0deg,#0001 0 1px,transparent 1px 4px)}.crt-roll{z-index:2147483646;background:linear-gradient(transparent 35%,#fff1 50%,transparent 65%);animation:roll 7s linear infinite}@keyframes roll{from{transform:translateY(-100%)}to{transform:translateY(100%)}}@media(max-width:700px){.portfolio{left:4vw;top:8vh;width:92vw;height:75vh}.about{display:none}.projects{grid-template-columns:1fr}.desktop-icons{display:none}.banner h1{font-size:38px}.taskbar{height:37px}.window{position:absolute}.boot{font-size:23px}.hobbies,.terminal-window,.guestbook{display:none}}
+ 
+ .titlebar{cursor:grab}.titlebar:active{cursor:grabbing}.resize-handle{position:absolute;right:0;bottom:0;width:14px;height:14px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#808080 50%)}
+ .hobbies{left:20vw;top:12vh;width:min(560px,80vw);height:min(60vh,480px)}
+@@ -24,4 +24,19 @@
+ @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+ .kofi-cta{margin:14px 0 4px}
+ .kofi-cta .bevel{display:inline-block;text-decoration:none;color:#111}
+-.kofi-cta .bevel:hover{background:#d9d9d9}
+\ No newline at end of file
++.kofi-cta .bevel:hover{background:#d9d9d9}
++.guestbook{left:24vw;top:10vh;width:min(420px,84vw);height:min(66vh,540px)}
++.guestbook-body{padding:14px;font-family:Arial,sans-serif;font-size:13px;display:flex;flex-direction:column;gap:10px;height:calc(100% - 25px)}
++.gb-intro{margin:0}
++.gb-form{display:flex;flex-direction:column;gap:6px}
++.gb-form input,.gb-form textarea{font:inherit;padding:6px;border:2px inset #fff;background:#fff}
++.gb-form textarea{resize:vertical;min-height:52px}
++.gb-form button{align-self:flex-start}
++.gb-honeypot{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
++.gb-note{margin:0;color:#7a1f1f;font-size:12px}
++.gb-empty{margin:0;color:#555;font-style:italic}
++.gb-entries{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;border-top:2px groove #fff;padding-top:8px}
++.gb-entry{background:#fffde7;border:2px inset #fff;padding:8px}
++.gb-entry-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px}
++.gb-entry-head time{color:#666;font-size:11px}
++.gb-entry p{margin:0;word-break:break-word}
+\ No newline at end of file
+diff --git a/app/page.tsx b/app/page.tsx
+index 764880d..1a8c860 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
+ import { Window } from "./components/Window";
+ import { Beep } from "./components/Beep";
+ import { MusicPlayer } from "./components/MusicPlayer";
++import { Guestbook } from "./components/Guestbook";
+ import { Terminal } from "./terminal";
+ import { projects, repo } from "./projects";
+ import { drumFill } from "./sound";
+@@ -17,16 +18,18 @@ export default function Home() {
+   const [about, setAbout] = useState(true);
+   const [music, setMusic] = useState(false);
+   const [hobbies, setHobbies] = useState(false);
++  const [guestbook, setGuestbook] = useState(false);
+   const [terminalOpen, setTerminalOpen] = useState(false);
+   const [egg, setEgg] = useState(false);
+-  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25 });
+-  const zCounter = useRef(26);
++  const [zMap, setZMap] = useState<Record<string, number>>({ portfolio: 21, about: 22, hobbies: 23, player: 24, terminal: 25, guestbook: 26 });
++  const zCounter = useRef(27);
+   const keyBuffer = useRef<string[]>([]);
+ 
+   function focus(id: string) { setZMap((m) => ({ ...m, [id]: zCounter.current++ })); }
+   function openHobbies() { setHobbies(true); focus("hobbies"); }
+   function openPlayer() { setMusic(true); focus("player"); }
+   function openTerminal() { setTerminalOpen(true); focus("terminal"); }
++  function openGuestbook() { setGuestbook(true); focus("guestbook"); }
+ 
+   useEffect(() => {
+     const enter = (e: KeyboardEvent) => { if (e.key === "Enter" && stage === "boot") setStage("login"); };
+@@ -65,6 +68,7 @@ Press ENTER to continue_</pre></main>;
+       <button onClick={() => (music ? setMusic(false) : openPlayer())}>♫<span>Music.exe</span></button>
+       <button onClick={() => (hobbies ? setHobbies(false) : openHobbies())}>❖<span>Hobbies</span></button>
+       <button onClick={() => (terminalOpen ? setTerminalOpen(false) : openTerminal())}>▤<span>Terminal</span></button>
++      <button onClick={() => (guestbook ? setGuestbook(false) : openGuestbook())}>📖<span>Guestbook</span></button>
+     </aside>
+     <Window id="portfolio" title="max_portfolio.exe" className="portfolio" zIndex={zMap.portfolio} onFocus={focus}>
+       <div className="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+@@ -89,7 +93,8 @@ Press ENTER to continue_</pre></main>;
+       </div>
+     </Window>}
+     {music && <Window id="player" title="tiny media player" className="player" zIndex={zMap.player} onFocus={focus} onClose={() => setMusic(false)} resizable={false}><MusicPlayer /></Window>}
+-    {terminalOpen && <Window id="terminal" title="terminal.exe" className="terminal-window" zIndex={zMap.terminal} onFocus={focus} onClose={() => setTerminalOpen(false)}><Terminal projects={projects} onOpenHobbies={openHobbies} onOpenPlayer={openPlayer} /></Window>}
++    {terminalOpen && <Window id="terminal" title="terminal.exe" className="terminal-window" zIndex={zMap.terminal} onFocus={focus} onClose={() => setTerminalOpen(false)}><Terminal projects={projects} onOpenHobbies={openHobbies} onOpenPlayer={openPlayer} onOpenGuestbook={openGuestbook} /></Window>}
++    {guestbook && <Window id="guestbook" title="guestbook.exe" className="guestbook" zIndex={zMap.guestbook} onFocus={focus} onClose={() => setGuestbook(false)}><Guestbook /></Window>}
+     <footer className="taskbar"><Beep>▣ Start</Beep><span>max_portfolio.exe</span><time>{clock}</time></footer>
+     <div className="scanlines" /><div className="crt-roll" />
+   </main>;
+diff --git a/app/terminal.tsx b/app/terminal.tsx
+index 3bb0973..7c3e49f 100644
+--- a/app/terminal.tsx
++++ b/app/terminal.tsx
+@@ -3,7 +3,7 @@
+ import { FormEvent, useState } from "react";
+ import { Project } from "./projects";
+ 
+-export function Terminal({ projects, onOpenHobbies, onOpenPlayer }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void }) {
++export function Terminal({ projects, onOpenHobbies, onOpenPlayer, onOpenGuestbook }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void; onOpenGuestbook: () => void }) {
+   const [lines, setLines] = useState(["Welcome to max.dev terminal v2.0", "Type help to explore."]);
+   const [command, setCommand] = useState("");
+ 
+@@ -13,12 +13,13 @@ export function Terminal({ projects, onOpenHobbies, onOpenPlayer }: { projects:
+     if (!input) return;
+     if (input === "clear") { setLines([]); setCommand(""); return; }
+     let reply = "command not found — try help";
+-    if (input === "help") reply = "help · projects · status · hobbies · play · whoami · clear · open [project]";
++    if (input === "help") reply = "help · projects · status · hobbies · play · guestbook · whoami · clear · open [project]";
+     if (input === "whoami") reply = "Maximiliano — CS student, software engineer, drummer, bead artist.";
+     if (input === "projects") { reply = "scrolling to project archive…"; document.querySelector("#portfolio")?.scrollIntoView({ behavior: "smooth" }); }
+     if (input === "status") reply = projects.map((project) => `${project.name} [${project.progress}]`).join(" · ");
+     if (input === "hobbies") { reply = "opening hobbies.exe…"; onOpenHobbies(); }
+     if (input === "play") { reply = "cueing up Tom Sawyer…"; onOpenPlayer(); }
++    if (input === "guestbook" || input === "sign") { reply = "opening guestbook.exe — leave a note!"; onOpenGuestbook(); }
+     const match = input.match(/^open\s+(.+)/);
+     if (match) {
+       const project = projects.find((item) => item.slug === match[1].replaceAll(" ", ""));

@@ -3,6 +3,5 @@ node_modules
 .next.nosync
 .vercel
 *.tsbuildinfo
-
 .DS_Store
 .env.local
