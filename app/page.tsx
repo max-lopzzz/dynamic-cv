@@ -1868,19 +1868,11 @@ export default function Home() {
           ================================================== */}
 
       {achievementToast && (
-        <div
-          className="achievement-toast"
-          aria-hidden="true"
-        >
-          <span className="achievement-toast-emoji">
-            {achievementToast.emoji}
-          </span>
-
-          <div>
-            <b>Achievement unlocked!</b>
-            <p>{achievementToast.title}</p>
-          </div>
-        </div>
+        <AchievementToast
+          title={achievementToast.title}
+          description={achievementToast.description}
+          icon={achievementToast.emoji}
+        />
       )}
 
       {/* ==================================================

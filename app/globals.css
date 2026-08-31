@@ -722,39 +722,163 @@ color: #555;
 font-size: 12px;
 }
 
+/* =========================================================
+   MAXOS ACHIEVEMENT TOAST
+   ========================================================= */
+
 .achievement-toast {
-position: fixed;
-bottom: 46px;
-right: 16px;
-z-index: 2147483647;
-background: #000;
-color: #ffd700;
-border: 2px solid #ffd700;
-padding: 10px 16px;
-display: flex;
-align-items: center;
-gap: 12px;
-font-family: Arial, sans-serif;
-animation: egg-pop 0.3s ease;
-pointer-events: none;
-max-width: 280px;
+  position: fixed;
+
+  right: 16px;
+  bottom: 58px;
+
+  width: min(340px, calc(100vw - 32px));
+
+  z-index: 2147483647;
+
+  background: #c0c0c0;
+  color: #111;
+
+  border: 2px solid #fff;
+
+  box-shadow:
+    inset -1px -1px #111,
+    inset 1px 1px #fff,
+    inset -2px -2px #777,
+    inset 2px 2px #ddd;
+
+  font-family: "Pixelify Sans", monospace;
+
+  animation:
+    achievement-open 0.22s steps(3, end),
+    achievement-flicker 3s infinite;
 }
 
-.achievement-toast-emoji {
-font-size: 28px;
+.achievement-titlebar {
+  height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 3px 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #000080,
+      #1084d0
+    );
+
+  color: #fff;
+
+  font-family: VT323, monospace;
+  font-size: 16px;
+  font-weight: bold;
 }
 
-.achievement-toast b {
-display: block;
-font-size: 11px;
-color: #999;
-font-weight: normal;
+.achievement-body {
+  display: flex;
+  gap: 12px;
+
+  padding: 12px;
 }
 
-.achievement-toast p {
-margin: 2px 0 0;
-font-size: 15px;
-color: #ffd700;
+.achievement-icon {
+  flex: 0 0 44px;
+
+  width: 44px;
+  height: 44px;
+
+  display: grid;
+  place-items: center;
+
+  background: #000080;
+  color: #fff;
+
+  border: 2px inset #fff;
+
+  font-family: VT323, monospace;
+  font-size: 28px;
+}
+
+.achievement-copy {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.achievement-eyebrow {
+  margin-bottom: 2px;
+
+  color: #555;
+
+  font-family: VT323, monospace;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.achievement-copy strong {
+  color: #000080;
+
+  font-family: VT323, monospace;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.achievement-copy p {
+  margin: 5px 0 0;
+
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+@keyframes achievement-open {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes achievement-flicker {
+  0%,
+  94%,
+  100% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 0.82;
+  }
+
+  96% {
+    opacity: 1;
+  }
+
+  97% {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 600px) {
+  .achievement-toast {
+    right: 8px;
+    bottom: 52px;
+    width: calc(100vw - 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast {
+    animation: none;
+  }
 }
 
 /* =========================
@@ -2754,6 +2878,191 @@ MOBILE PROJECT DETAILS
 
 @media (prefers-reduced-motion: reduce) {
   .achievement-toast {
+    animation: none;
+  }
+}
+
+/* =========================================================
+   CRT SCREEN
+   Used by boot, login and secret screens.
+   ========================================================= */
+
+.crt-screen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.crt-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* Horizontal scanlines */
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08) 0,
+      rgba(0, 0, 0, 0.08) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+
+  opacity: 0.32;
+}
+
+/* Dark edges around the screen */
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(0, 0, 0, 0.08) 72%,
+      rgba(0, 0, 0, 0.38) 100%
+    );
+
+  opacity: 0.7;
+}
+
+/* Tiny brightness instability */
+.crt-flicker {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+
+  pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  animation: crt-flicker 0.12s infinite;
+}
+
+/* Subtle moving brightness band */
+.crt-screen::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20%;
+
+  height: 20%;
+
+  z-index: 13;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgba(255, 255, 255, 0.025),
+      transparent
+    );
+
+  animation: crt-scan 8s linear infinite;
+}
+
+/* ---------------------------------------------------------
+   CRT INTENSITIES
+   --------------------------------------------------------- */
+
+.crt-subtle .crt-scanlines {
+  opacity: 0.14;
+}
+
+.crt-subtle .crt-vignette {
+  opacity: 0.35;
+}
+
+.crt-subtle .crt-flicker {
+  opacity: 0.35;
+}
+
+.crt-medium .crt-scanlines {
+  opacity: 0.28;
+}
+
+.crt-medium .crt-vignette {
+  opacity: 0.58;
+}
+
+.crt-medium .crt-flicker {
+  opacity: 0.55;
+}
+
+.crt-strong .crt-scanlines {
+  opacity: 0.45;
+}
+
+.crt-strong .crt-vignette {
+  opacity: 0.8;
+}
+
+.crt-strong .crt-flicker {
+  opacity: 0.75;
+}
+
+/* ---------------------------------------------------------
+   ANIMATIONS
+   --------------------------------------------------------- */
+
+@keyframes crt-flicker {
+  0% {
+    opacity: 0.16;
+  }
+
+  20% {
+    opacity: 0.22;
+  }
+
+  40% {
+    opacity: 0.13;
+  }
+
+  60% {
+    opacity: 0.20;
+  }
+
+  80% {
+    opacity: 0.15;
+  }
+
+  100% {
+    opacity: 0.18;
+  }
+}
+
+@keyframes crt-scan {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(600%);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .crt-flicker,
+  .crt-screen::after {
     animation: none;
   }
 }

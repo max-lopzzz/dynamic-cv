@@ -20,7 +20,11 @@ type Status =
 
 const MESSAGE_MAX = 240;
 
-export function Guestbook() {
+export function Guestbook({
+  onSubmitted,
+}: {
+  onSubmitted?: () => void;
+} = {}) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
@@ -120,6 +124,9 @@ export function Guestbook() {
       setStatus("success");
       beep();
 
+      // Unlock the guestbook achievement
+      onSubmitted?.();
+
       window.setTimeout(() => {
         setStatus("idle");
       }, 2500);
@@ -163,6 +170,7 @@ export function Guestbook() {
       <form onSubmit={submit} className="gb-form">
         <label>
           <span>name</span>
+
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
