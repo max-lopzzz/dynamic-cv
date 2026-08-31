@@ -1188,11 +1188,14 @@ cursor: url("/assets/cursors/windows98-arrow.cur"), pointer;
 }
 
 .beadart-embed {
-width: 100%;
-height: 220px;
-border: 2px inset #fff;
-margin-bottom: 8px;
-background: #fff;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  border: 2px inset #fff;
+  margin-bottom: 8px;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 /* =========================
