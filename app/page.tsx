@@ -123,6 +123,8 @@ export default function Home() {
   );
 
   useEffect(() => {
+    // Load persisted achievements from localStorage on the client.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUnlocked(loadUnlockedAchievements());
   }, []);
 
@@ -984,7 +986,7 @@ export default function Home() {
                 </h2>
 
                 <p>
-                  things i've made,
+                  things i&apos;ve made,
                   broken, fixed, and
                   shipped.
                 </p>

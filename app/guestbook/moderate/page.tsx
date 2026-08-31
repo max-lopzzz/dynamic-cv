@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 type GuestbookEntry = {
   id: string;
@@ -22,31 +22,67 @@ export default function GuestbookModeration() {
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState("checking guestbook.exe...");
 
-  useEffect(() => {
-    checkAuthentication();
-  }, []);
+    const loadEntries = useCallback(async () => {
+      try {
+        setLoading(true);
+        setNotice("checking redis connection...");
 
-  async function checkAuthentication() {
-    try {
-      const response = await fetch(
-        "/api/guestbook?moderation=pending",
-        {
-          cache: "no-store",
+        const response = await fetch(
+          "/api/guestbook?moderation=pending",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (response.status === 401) {
+          setAuthenticated(false);
+          return;
         }
-      );
 
-      if (response.ok) {
-        setAuthenticated(true);
-        await loadEntries();
-      } else {
-        setAuthenticated(false);
+        if (!response.ok) {
+          throw new Error("request_failed");
+        }
+
+        const data = await response.json();
+
+        setEntries(data.entries ?? []);
+        setNotice("redis connected ♡");
+      } catch {
+        setNotice(
+          "something went wrong... please try again :("
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setAuthenticated(false);
-    } finally {
-      setCheckingAuth(false);
-    }
-  }
+    }, []);
+
+    const checkAuthentication = useCallback(async () => {
+      try {
+        const response = await fetch(
+          "/api/guestbook?moderation=pending",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (response.ok) {
+          setAuthenticated(true);
+          await loadEntries();
+        } else {
+          setAuthenticated(false);
+        }
+      } catch {
+        setAuthenticated(false);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }, [loadEntries]);
+
+  useEffect(() => {
+    // Authentication is an external side effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    checkAuthentication();
+  }, [checkAuthentication]);
 
   async function login(e: FormEvent) {
     e.preventDefault();
@@ -93,40 +129,6 @@ export default function GuestbookModeration() {
     setAuthenticated(false);
     setEntries([]);
     setNotice("logged out ♡");
-  }
-
-  async function loadEntries() {
-    try {
-      setLoading(true);
-      setNotice("checking redis connection...");
-
-      const response = await fetch(
-        "/api/guestbook?moderation=pending",
-        {
-          cache: "no-store",
-        }
-      );
-
-      if (response.status === 401) {
-        setAuthenticated(false);
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("request_failed");
-      }
-
-      const data = await response.json();
-
-      setEntries(data.entries ?? []);
-      setNotice("redis connected ♡");
-    } catch {
-      setNotice(
-        "something went wrong... please try again :("
-      );
-    } finally {
-      setLoading(false);
-    }
   }
 
   async function moderate(
