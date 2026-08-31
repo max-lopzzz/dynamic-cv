@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Beep } from "./Beep";
 import { playWindowsSound } from "../sound";
+import Image from "next/image";
 
 function fmt(s: number) {
   if (!isFinite(s)) return "0:00";
@@ -61,7 +62,7 @@ export function MusicPlayer() {
     <div className="media-player98">
       <audio ref={audioRef} src="/audio/tom-sawyer.mp3" preload="metadata" />
       <div className="media-player-header">
-        <img src="/assets/icons/Music File.ico" alt="" width="32" height="32" />
+        <Image src="/assets/icons/Music File.ico" alt="" width="32" height="32" />
         <div>
           <b>Windows Media Player</b>
           <small>Tom Sawyer — Rush</small>
