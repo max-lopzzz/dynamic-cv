@@ -4,16 +4,22 @@ import { useEffect, useRef, useState } from "react";
 
 import { Window } from "./components/Window";
 import { Beep } from "./components/Beep";
+import { CRTScreen } from "./components/CRTScreen";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { Guestbook } from "./components/Guestbook";
 import { WallOfKindWords } from "./components/WallOfKindWords";
 import { AssetIcon } from "./components/AssetIcon";
 import { Terminal } from "./terminal";
-
+import { AchievementToast } from "./components/AchievementToast";
 import { projects, Category } from "./projects";
 import { playWindowsSound } from "./sound";
 import { nowItems, nowUpdatedAt } from "./now";
 import { funStats } from "./devstats";
+import {
+  achievements,
+  loadUnlockedAchievements,
+  saveUnlockedAchievements,
+} from "./achievements";
 
 type Stage = "boot" | "login" | "desktop";
 
@@ -49,6 +55,7 @@ const icons = {
   hireMe: "/assets/icons/User Support.ico",
   devStats: "/assets/icons/System Properties.ico",
   wall: "/assets/icons/Hearts.ico",
+  achievements: "/assets/icons/Freecell.ico",
 };
 
 export default function Home() {
@@ -65,12 +72,23 @@ export default function Home() {
   const [hireMe, setHireMe] = useState(false);
   const [devStats, setDevStats] = useState(false);
   const [wall, setWall] = useState(false);
+  const [achievementsOpen, setAchievementsOpen] =
+    useState(false);
+  const [unlocked, setUnlocked] = useState<string[]>(
+    []
+  );
+  const [achievementToast, setAchievementToast] =
+    useState<
+      (typeof achievements)[number] | null
+    >(null);
   const [githubRepoCount, setGithubRepoCount] =
     useState<number | null>(null);
   const [githubCommitCount, setGithubCommitCount] =
     useState<number | null>(null);
 
   const [egg, setEgg] = useState(false);
+  const [godMode, setGodMode] = useState(false);
+  const [logoSecret, setLogoSecret] = useState(false);
 
   const [projectFilter, setProjectFilter] =
     useState<"all" | Category>("all");
@@ -90,10 +108,47 @@ export default function Home() {
     hireMe: 29,
     devStats: 30,
     wall: 31,
+    achievements: 32,
   });
 
-  const zCounter = useRef(32);
+  const zCounter = useRef(33);
   const keyBuffer = useRef<string[]>([]);
+  const letterBuffer = useRef<string[]>([]);
+  const logoClicks = useRef(0);
+  const logoClicksTimer = useRef<number | null>(
+    null
+  );
+  const filtersTried = useRef<Set<string>>(
+    new Set()
+  );
+
+  useEffect(() => {
+    setUnlocked(loadUnlockedAchievements());
+  }, []);
+
+  function unlock(id: string) {
+    setUnlocked((current) => {
+      if (current.includes(id)) return current;
+
+      const next = [...current, id];
+      saveUnlockedAchievements(next);
+
+      const found = achievements.find(
+        (a) => a.id === id
+      );
+
+      if (found) {
+        setAchievementToast(found);
+        playWindowsSound("notify", 0.5);
+
+        window.setTimeout(() => {
+          setAchievementToast(null);
+        }, 3200);
+      }
+
+      return next;
+    });
+  }
 
   function focus(id: string) {
     setZMap((current) => ({
@@ -118,6 +173,7 @@ export default function Home() {
     setTerminalOpen(true);
     focus("terminal");
     playWindowsSound("open");
+    unlock("terminal");
   }
 
   function openGuestbook() {
@@ -148,6 +204,7 @@ export default function Home() {
     setHireMe(true);
     focus("hireMe");
     playWindowsSound("open");
+    unlock("hire-me");
   }
 
   function openDevStats() {
@@ -160,6 +217,44 @@ export default function Home() {
     setWall(true);
     focus("wall");
     playWindowsSound("open");
+  }
+
+  function openAchievements() {
+    setAchievementsOpen(true);
+    focus("achievements");
+    playWindowsSound("open");
+  }
+
+  function handleLogoClick() {
+    playWindowsSound("click", 0.3);
+
+    logoClicks.current += 1;
+
+    if (logoClicksTimer.current) {
+      window.clearTimeout(
+        logoClicksTimer.current
+      );
+    }
+
+    if (logoClicks.current >= 5) {
+      logoClicks.current = 0;
+      setLogoSecret(true);
+      playWindowsSound("success");
+      unlock("logo-secret");
+
+      window.setTimeout(() => {
+        setLogoSecret(false);
+      }, 2200);
+
+      return;
+    }
+
+    logoClicksTimer.current = window.setTimeout(
+      () => {
+        logoClicks.current = 0;
+      },
+      1200
+    );
   }
 
   function openProjectDetails(
@@ -258,11 +353,45 @@ export default function Home() {
       ) {
         setEgg(true);
         playWindowsSound("success");
+        unlock("konami");
 
         window.setTimeout(() => {
           setEgg(false);
           keyBuffer.current = [];
         }, 1800);
+      }
+    };
+
+    const handleGodMode = (
+      event: KeyboardEvent
+    ) => {
+      if (stage !== "desktop") return;
+
+      const key = event.key.toLowerCase();
+
+      /*
+       * Solo trackeamos letras individuales,
+       * para no chocar con el buffer de flechas
+       * del Konami code de arriba.
+       */
+      if (key.length !== 1 || !/[a-z]/.test(key)) {
+        return;
+      }
+
+      letterBuffer.current = [
+        ...letterBuffer.current,
+        key,
+      ].slice(-5);
+
+      if (
+        letterBuffer.current.join("") === "iddqd"
+      ) {
+        setGodMode((current) => {
+          if (!current) unlock("godmode");
+          return !current;
+        });
+        playWindowsSound("success");
+        letterBuffer.current = [];
       }
     };
 
@@ -341,6 +470,11 @@ export default function Home() {
     );
 
     window.addEventListener(
+      "keydown",
+      handleGodMode
+    );
+
+    window.addEventListener(
       "click",
       handleGlobalClick
     );
@@ -366,6 +500,11 @@ export default function Home() {
       );
 
       window.removeEventListener(
+        "keydown",
+        handleGodMode
+      );
+
+      window.removeEventListener(
         "click",
         handleGlobalClick
       );
@@ -382,31 +521,30 @@ export default function Home() {
 
   if (stage === "boot") {
     return (
-      <main
-        className="boot"
-        onClick={() => {
-          playWindowsSound(
-            "startup",
-            0.55
-          );
+      <CRTScreen intensity="strong">
+        <main
+          className="boot"
+          onClick={() => {
+            playWindowsSound(
+              "startup",
+              0.55
+            );
 
-          setStage("login");
-        }}
-      >
-        <pre>{`MAX BIOS v0.98
+            setStage("login");
+          }}
+        >
+          <pre>{`MAX BIOS v0.98
 
-Checking memory... OK
+  Checking memory... OK
+  Loading: MAXIMILIANO.EXE
 
-Loading: MAXIMILIANO.EXE
+  Loading: PROJECTS.DAT
+  Loading: DRUMS.MID
+  Loading: WINDOWS98.ASSETS
 
-Loading: PROJECTS.DAT
-
-Loading: DRUMS.MID
-
-Loading: WINDOWS98.ASSETS
-
-Press ENTER to continue_`}</pre>
-      </main>
+  Press ENTER to continue_`}</pre>
+        </main>
+      </CRTScreen>
     );
   }
 
@@ -418,42 +556,44 @@ Press ENTER to continue_`}</pre>
 
   if (stage === "login") {
     return (
-      <main className="login">
-        <Window
-          title="Welcome to MaxOS"
-          resizable={false}
-        >
-          <div className="login-body">
-            <AssetIcon
-              src={icons.about}
-              size={48}
-            />
+      <CRTScreen intensity="medium">
+        <main className="login">
+          <Window
+            title="Welcome to MaxOS"
+            resizable={false}
+          >
+            <div className="login-body">
+              <AssetIcon
+                src={icons.about}
+                size={48}
+              />
 
-            <div className="avatar">
-              M
+              <div className="avatar">
+                M
+              </div>
+
+              <h1>Maximiliano</h1>
+
+              <p>
+                Click to enter the desktop.
+              </p>
+
+              <Beep
+                onClick={() => {
+                  playWindowsSound(
+                    "startup",
+                    0.55
+                  );
+
+                  setStage("desktop");
+                }}
+              >
+                Enter
+              </Beep>
             </div>
-
-            <h1>Maximiliano</h1>
-
-            <p>
-              Click to enter the desktop.
-            </p>
-
-            <Beep
-              onClick={() => {
-                playWindowsSound(
-                  "startup",
-                  0.55
-                );
-
-                setStage("desktop");
-              }}
-            >
-              Enter
-            </Beep>
-          </div>
-        </Window>
-      </main>
+          </Window>
+        </main>
+      </CRTScreen>
     );
   }
 
@@ -465,7 +605,9 @@ Press ENTER to continue_`}</pre>
 
   return (
     <main
-      className={`desktop${egg ? " shake" : ""}`}
+      className={`desktop${egg ? " shake" : ""}${
+        godMode ? " godmode" : ""
+      }`}
     >
       <div className="wallpaper" />
 
@@ -496,6 +638,56 @@ Press ENTER to continue_`}</pre>
               }}
             >
               {i % 2 === 0 ? "♫" : "♪"}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* ==================================================
+          GOD MODE (iddqd)
+          ================================================== */}
+
+      {godMode && (
+        <div
+          className="godmode-badge"
+          aria-hidden="true"
+        >
+          🕹️ god mode on — infinite
+          coffee, zero bugs (probably)
+          <span className="godmode-hint">
+            type iddqd again to turn off
+          </span>
+        </div>
+      )}
+
+      {/* ==================================================
+          LOGO SECRET (5 clicks on Start)
+          ================================================== */}
+
+      {logoSecret && (
+        <div
+          className="logo-secret"
+          aria-hidden="true"
+        >
+          <div className="logo-secret-toast">
+            🖱️ ooh, curious clicker — you
+            found the secret.
+          </div>
+
+          {Array.from({
+            length: 10,
+          }).map((_, i) => (
+            <span
+              key={i}
+              className="logo-secret-star"
+              style={{
+                left: `${(i * 10) % 100}%`,
+                animationDelay: `${
+                  i * 0.06
+                }s`,
+              }}
+            >
+              {i % 2 === 0 ? "⭐" : "✨"}
             </span>
           ))}
         </div>
@@ -696,6 +888,26 @@ Press ENTER to continue_`}</pre>
 
           <span>Kind Words</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            achievementsOpen
+              ? closeWindow(
+                  setAchievementsOpen
+                )
+              : openAchievements()
+          }
+        >
+          <AssetIcon
+            src={icons.achievements}
+          />
+
+          <span>
+            Achievements ({unlocked.length}/
+            {achievements.length})
+          </span>
+        </button>
       </aside>
 
       {/* ==================================================
@@ -807,6 +1019,19 @@ Press ENTER to continue_`}</pre>
                     setProjectFilter(
                       option
                     );
+
+                    if (option !== "all") {
+                      filtersTried.current.add(
+                        option
+                      );
+
+                      if (
+                        filtersTried.current
+                          .size >= 3
+                      ) {
+                        unlock("all-filters");
+                      }
+                    }
 
                     playWindowsSound(
                       "click",
@@ -1513,6 +1738,12 @@ Press ENTER to continue_`}</pre>
             onOpenGuestbook={
               openGuestbook
             }
+            onNeofetch={() =>
+              unlock("neofetch")
+            }
+            onSecretFound={() =>
+              unlock("secret-page")
+            }
           />
         </Window>
       )}
@@ -1534,7 +1765,11 @@ Press ENTER to continue_`}</pre>
             )
           }
         >
-          <Guestbook />
+          <Guestbook
+            onSubmitted={() =>
+              unlock("guestbook-signed")
+            }
+          />
         </Window>
       )}
 
@@ -1563,17 +1798,98 @@ Press ENTER to continue_`}</pre>
       )}
 
       {/* ==================================================
+          ACHIEVEMENTS
+          ================================================== */}
+
+      {achievementsOpen && (
+        <Window
+          id="achievements"
+          title="achievements.exe"
+          className="achievements"
+          zIndex={zMap.achievements}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(
+              setAchievementsOpen
+            )
+          }
+        >
+          <div className="achievements-body">
+            <p className="achievements-intro">
+              {unlocked.length} of{" "}
+              {achievements.length} unlocked
+              — poke around to find the
+              rest.
+            </p>
+
+            <div className="achievements-list">
+              {achievements.map((a) => {
+                const isUnlocked =
+                  unlocked.includes(a.id);
+
+                return (
+                  <div
+                    key={a.id}
+                    className={
+                      isUnlocked
+                        ? "achievement-row unlocked"
+                        : "achievement-row"
+                    }
+                  >
+                    <span className="achievement-emoji">
+                      {isUnlocked
+                        ? a.emoji
+                        : "🔒"}
+                    </span>
+
+                    <div>
+                      <b>
+                        {isUnlocked
+                          ? a.title
+                          : "???"}
+                      </b>
+
+                      <p>
+                        {isUnlocked
+                          ? a.description
+                          : "keep exploring…"}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Window>
+      )}
+
+      {/* ==================================================
+          ACHIEVEMENT TOAST
+          ================================================== */}
+
+      {achievementToast && (
+        <div
+          className="achievement-toast"
+          aria-hidden="true"
+        >
+          <span className="achievement-toast-emoji">
+            {achievementToast.emoji}
+          </span>
+
+          <div>
+            <b>Achievement unlocked!</b>
+            <p>{achievementToast.title}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================================
           TASKBAR
           ================================================== */}
 
       <footer className="taskbar">
         <Beep
-          onClick={() =>
-            playWindowsSound(
-              "click",
-              0.3
-            )
-          }
+          onClick={handleLogoClick}
         >
           <AssetIcon
             src="/assets/icons/Folder Closed.ico"
@@ -1687,6 +2003,16 @@ Press ENTER to continue_`}</pre>
             onClick={openWall}
           >
             kind_words.exe
+          </button>
+        )}
+
+        {achievementsOpen && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openAchievements}
+          >
+            achievements.exe
           </button>
         )}
 

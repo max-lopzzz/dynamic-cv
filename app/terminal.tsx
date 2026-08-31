@@ -35,7 +35,7 @@ function neofetchLines(projectCount: number): string[] {
   return output;
 }
 
-export function Terminal({ projects, onOpenHobbies, onOpenPlayer, onOpenGuestbook }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void; onOpenGuestbook: () => void }) {
+export function Terminal({ projects, onOpenHobbies, onOpenPlayer, onOpenGuestbook, onNeofetch, onSecretFound }: { projects: Project[]; onOpenHobbies: () => void; onOpenPlayer: () => void; onOpenGuestbook: () => void; onNeofetch?: () => void; onSecretFound?: () => void }) {
   const [lines, setLines] = useState(["Welcome to max.dev terminal v2.0", "Type help to explore."]);
   const [command, setCommand] = useState("");
 
@@ -52,7 +52,15 @@ export function Terminal({ projects, onOpenHobbies, onOpenPlayer, onOpenGuestboo
     if (input === "hobbies") { reply = "opening hobbies.exe…"; onOpenHobbies(); }
     if (input === "play") { reply = "cueing up Tom Sawyer…"; onOpenPlayer(); }
     if (input === "guestbook" || input === "sign") { reply = "opening guestbook.exe — leave a note!"; onOpenGuestbook(); }
-    if (input === "neofetch") reply = neofetchLines(projects.length);
+    if (input === "neofetch") { reply = neofetchLines(projects.length); onNeofetch?.(); }
+    if (input === "sudo make me a sandwich") {
+      reply = [
+        "[sudo] password for max: ",
+        "okay.",
+        "🥪 here you go: /secret",
+      ];
+      onSecretFound?.();
+    }
     const match = input.match(/^open\s+(.+)/);
     if (match) {
       const project = projects.find((item) => item.slug === match[1].replaceAll(" ", ""));
