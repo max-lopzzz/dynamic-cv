@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export function AssetIcon({
   src,
   alt = "",
@@ -10,7 +12,7 @@ export function AssetIcon({
   size?: number;
 }) {
   return (
-    <img
+    <Image
       className="asset-icon"
       src={src}
       alt={alt}
