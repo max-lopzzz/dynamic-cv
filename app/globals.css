@@ -2115,7 +2115,8 @@ MOBILE
 
   .hobbies,
   .terminal-window,
-  .guestbook {
+  .guestbook,
+  .earth {
     display: none;
   }
 
@@ -3068,4 +3069,145 @@ MOBILE PROJECT DETAILS
   .crt-screen::after {
     animation: none;
   }
+}
+
+/* =========================
+   EARTH.EXE — random Wikipedia figure
+   ========================= */
+
+.earth {
+  left: 30vw;
+  top: 8vh;
+  width: min(540px, 86vw);
+  height: min(78vh, 660px);
+}
+
+.earth-body {
+  height: calc(100% - 25px);
+  background: #fff;
+  color: #202122;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  overflow: auto;
+}
+
+.earth-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wiki-thumb {
+  margin: 0;
+  max-width: 100%;
+  background: #f8f9fa;
+  border: 1px solid #c8ccd1;
+  padding: 3px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  transition: opacity 0.2s ease;
+}
+
+.wiki-thumb[data-loaded="false"] {
+  opacity: 0.35;
+}
+
+.wiki-thumb img {
+  display: block;
+  max-width: 100%;
+  max-height: min(44vh, 400px);
+  min-width: 200px;
+  min-height: 140px;
+  margin: 0 auto;
+  background: #eaecf0;
+  object-fit: contain;
+}
+
+.wiki-caption {
+  padding: 5px 6px 4px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.wiki-caption a,
+.earth-credit a {
+  color: #0645ad;
+  text-decoration: none;
+}
+
+.wiki-caption a:hover,
+.earth-credit a:hover,
+.earth-status:hover {
+  text-decoration: underline;
+}
+
+.earth-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.earth-status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #3a76bd;
+  font: 22px/1.2 "Linux Libertine", Georgia, "Times New Roman", serif;
+  text-decoration: none;
+}
+
+/* Spinning Earth: an equirectangular map scrolling inside a shaded sphere. */
+.globe {
+  --globe: 44px;
+  width: var(--globe);
+  height: var(--globe);
+  flex: none;
+  border-radius: 50% !important;
+  background: #1c4f8f url("/earth-texture.jpg") 0 0 / auto 100% repeat-x;
+  box-shadow:
+    inset -7px -5px 11px rgba(0, 0, 0, 0.6),
+    inset 3px 2px 6px rgba(255, 255, 255, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.3);
+  animation: globe-spin 14s linear infinite;
+}
+
+@keyframes globe-spin {
+  to {
+    background-position: calc(var(--globe) * -2) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .globe {
+    animation: none;
+  }
+}
+
+.earth-credit {
+  margin: 0;
+  font: 11px/1.4 Arial, sans-serif;
+  color: #72777d;
+}
+
+.wiki-thumb {
+  animation: wiki-in 0.25s ease;
+}
+
+@keyframes wiki-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.earth-error {
+  margin: 0;
+  font: 15px/1.5 "Linux Libertine", Georgia, "Times New Roman", serif;
+  color: #72777d;
+  text-align: center;
 }

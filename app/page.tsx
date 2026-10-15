@@ -7,6 +7,7 @@ import { Beep } from "./components/Beep";
 import { CRTScreen } from "./components/CRTScreen";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { Guestbook } from "./components/Guestbook";
+import { WikiViewer } from "./components/WikiViewer";
 import { WallOfKindWords } from "./components/WallOfKindWords";
 import { AssetIcon } from "./components/AssetIcon";
 import { Terminal } from "./terminal";
@@ -52,6 +53,7 @@ const icons = {
   hobbies: "/assets/icons/Game Controller.ico",
   terminal: "/assets/icons/Manage your Server.ico",
   guestbook: "/assets/icons/List File.ico",
+  earth: "/assets/icons/Earth (fixed).ico",
   hireMe: "/assets/icons/User Support.ico",
   devStats: "/assets/icons/System Properties.ico",
   wall: "/assets/icons/Hearts.ico",
@@ -68,6 +70,7 @@ export default function Home() {
   const [music, setMusic] = useState(false);
   const [hobbies, setHobbies] = useState(false);
   const [guestbook, setGuestbook] = useState(false);
+  const [earth, setEarth] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [hireMe, setHireMe] = useState(false);
   const [devStats, setDevStats] = useState(false);
@@ -109,9 +112,10 @@ export default function Home() {
     devStats: 30,
     wall: 31,
     achievements: 32,
+    earth: 33,
   });
 
-  const zCounter = useRef(33);
+  const zCounter = useRef(34);
   const keyBuffer = useRef<string[]>([]);
   const letterBuffer = useRef<string[]>([]);
   const logoClicks = useRef(0);
@@ -181,6 +185,12 @@ export default function Home() {
   function openGuestbook() {
     setGuestbook(true);
     focus("guestbook");
+    playWindowsSound("open");
+  }
+
+  function openEarth() {
+    setEarth(true);
+    focus("earth");
     playWindowsSound("open");
   }
 
@@ -874,6 +884,21 @@ export default function Home() {
           />
 
           <span>Guestbook</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            earth
+              ? closeWindow(setEarth)
+              : openEarth()
+          }
+        >
+          <AssetIcon
+            src={icons.earth}
+          />
+
+          <span>Earth.exe</span>
         </button>
 
         <button
@@ -1776,6 +1801,25 @@ export default function Home() {
       )}
 
       {/* ==================================================
+          EARTH.EXE — random Wikipedia figure
+          ================================================== */}
+
+      {earth && (
+        <Window
+          id="earth"
+          title="earth.exe"
+          className="earth"
+          zIndex={zMap.earth}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setEarth)
+          }
+        >
+          <WikiViewer />
+        </Window>
+      )}
+
+      {/* ==================================================
           WALL OF KIND WORDS
           ================================================== */}
 
@@ -1987,6 +2031,16 @@ export default function Home() {
             }
           >
             guestbook.exe
+          </button>
+        )}
+
+        {earth && (
+          <button
+            type="button"
+            className="taskbar-window"
+            onClick={openEarth}
+          >
+            earth.exe
           </button>
         )}
 
