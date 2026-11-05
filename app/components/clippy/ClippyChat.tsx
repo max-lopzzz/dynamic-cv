@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { loadUnlockedAchievements } from "../../achievements";
+import { greetingFor } from "../../clippy/greeting";
 import { splitOpenTokens } from "../../clippy/openTokens";
 import { MAX_HISTORY, MAX_INPUT_CHARS } from "../../clippy/validate";
 import {
@@ -34,8 +35,6 @@ export const OPENABLE_WINDOW_TITLES: Record<OpenableWindow, string> = {
   achievements: "achievements.exe",
 };
 
-const GREETING =
-  "Hi! I'm Clippy. Ask me anything about Max: his experience, projects, hobbies, or what he's up to now.";
 
 const ERROR_LINES = {
   limit:
@@ -93,6 +92,9 @@ export function ClippyChat({
   const [streaming, setStreaming] = useState(false);
   // Read on the client only: the chat never renders on the server.
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
+  const [greeting] = useState(() =>
+    greetingFor(navigator.languages?.length ? navigator.languages : [navigator.language]),
+  );
 
   // Synchronous guard so a double Enter can't send twice before re-render.
   const busyRef = useRef(false);
@@ -242,7 +244,7 @@ export function ClippyChat({
         >
           <p className="clippy-chat-msg">
             <b>Clippy</b>
-            {GREETING}
+            {greeting}
           </p>
 
           {log.map((entry, index) => (
