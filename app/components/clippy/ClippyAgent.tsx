@@ -85,6 +85,34 @@ function playNow(agent: Agent, animation: string) {
   agent.play(animation);
 }
 
+// clippyjs internals used by the freeze watchdog.
+type AgentInternals = {
+  _queue: { _queue: unknown[]; _active: boolean };
+};
+
+const FREEZE_CHECK_MS = 1000;
+const FREEZE_AFTER_MS = 5000;
+
+/** Which sprite frame is showing, across clippyjs's overlay layers. */
+function frameKey(el: HTMLElement) {
+  return [el, ...el.querySelectorAll("div")]
+    .map((d) => d.style.backgroundPosition + d.style.display)
+    .join("|");
+}
+
+/**
+ * clippyjs can leave Clippy standing still: some idle animations stop on
+ * their last frame until told to exit, and when an idle ends nothing starts
+ * the next one. If his frame hasn't changed for a while (and he isn't busy
+ * playing something we asked for), cut the idle and play a short animation;
+ * once it ends, clippyjs starts a fresh idle. (See freezeTimer below.)
+ */
+/** True while clippyjs is playing or waiting to play something we queued. */
+function isBusy(agent: Agent) {
+  const q = (agent as unknown as AgentInternals)._queue;
+  return q._active || q._queue.length > 0;
+}
+
 function scaleFor(width: number) {
   return width <= MOBILE_BREAKPOINT ? MOBILE_SCALE : 1;
 }
@@ -204,6 +232,21 @@ export function ClippyAgent({
     let cancelled = false;
     let agent: Agent | null = null;
     let appearTimer: number | null = null;
+    let lastFrame = "";
+    let stillSince = performance.now();
+    const freezeTimer = window.setInterval(() => {
+      if (!agent || hiddenRef.current) return;
+      const now = performance.now();
+      const frame = frameKey(agent._el);
+      if (frame !== lastFrame) {
+        lastFrame = frame;
+        stillSince = now;
+        return;
+      }
+      if (now - stillSince < FREEZE_AFTER_MS || isBusy(agent)) return;
+      stillSince = now;
+      playNow(agent, "RestPose");
+    }, FREEZE_CHECK_MS);
     let pointerStart: { x: number; y: number } | null = null;
 
     const applyScale = () => {
@@ -270,6 +313,7 @@ export function ClippyAgent({
 
     return () => {
       cancelled = true;
+      window.clearInterval(freezeTimer);
       if (appearTimer !== null) window.clearTimeout(appearTimer);
       clearBubbleTimers();
       window.removeEventListener("pointerup", onPointerUp);
