@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, type RedisClientType } from "redis";
-
-const REDIS_URL =
-  process.env.KV_REDIS_URL || process.env.REDIS_URL;
+import {
+  getClientIp,
+  getRedis,
+  redisConfigured,
+} from "../../../lib/redis";
 
 const MODERATION_PASSWORD =
   process.env.MODERATION_PASSWORD;
@@ -14,49 +15,11 @@ const RATE_LIMIT_PREFIX = "guestbook:auth-rate:";
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW = 60 * 10;
 
-let clientPromise: Promise<RedisClientType> | null = null;
-
-async function getClient(): Promise<RedisClientType> {
-  if (!REDIS_URL) {
-    throw new Error("not_configured");
-  }
-
-  if (!clientPromise) {
-    const client = createClient({
-      url: REDIS_URL,
-    }) as RedisClientType;
-
-    client.on("error", () => {
-      // Errors are handled by the request try/catch.
-    });
-
-    clientPromise = client
-      .connect()
-      .then(() => client)
-      .catch((error) => {
-        clientPromise = null;
-        throw error;
-      });
-  }
-
-  return clientPromise;
-}
-
-function getClientIp(req: NextRequest) {
-  const forwarded = req.headers.get("x-forwarded-for");
-
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
-
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
 export async function POST(req: NextRequest) {
   if (
     !MODERATION_PASSWORD ||
     !MODERATION_SESSION_SECRET ||
-    !REDIS_URL
+    !redisConfigured()
   ) {
     return NextResponse.json(
       { error: "moderation_not_configured" },
@@ -85,7 +48,7 @@ export async function POST(req: NextRequest) {
       : "";
 
   try {
-    const client = await getClient();
+    const client = await getRedis();
 
     /*
      * Rate limit:

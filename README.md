@@ -20,7 +20,51 @@ npm run dev
 3. Keep the detected **Next.js** settings and select **Deploy**.
 
 The core portfolio needs no environment variables and is fully static. The
-guestbook is optional: to turn it on, add a **Redis** store in Vercel
-(**Storage → Create Database → Redis**) and connect it to the project —
-this auto-injects `KV_REDIS_URL`. Without it, the guestbook window shows a
-"not wired up yet" message instead of breaking the page.
+guestbook and Clippy are optional and both use Redis: in Vercel, go to
+**Storage → Create Database → Upstash (Redis)** and connect it to the project.
+The code reads the connection string from `KV_REDIS_URL`, `REDIS_URL` or
+`KV_URL` (first one set wins), so whichever the integration injects works.
+Without Redis, the guestbook window shows a "not wired up yet" message
+instead of breaking the page.
+
+## Clippy assistant
+
+Clippy is a Windows 98 style chat assistant that answers questions about me.
+It streams replies from [Groq](https://console.groq.com) and only needs:
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `GROQ_API_KEY` | yes | Create it in the Groq console. |
+| `GROQ_MODEL` | no | Defaults to `llama-3.1-8b-instant`. |
+| `KV_REDIS_URL` / `REDIS_URL` / `KV_URL` | yes | Redis, used for rate limits (see above). |
+
+For local dev, put `GROQ_API_KEY` and the Redis URL in `.env.local`. It is
+gitignored; never commit it.
+
+If `GROQ_API_KEY` or Redis is missing, Clippy's chat replies with a friendly
+"taking a little nap" message while the rest of the site keeps working.
+
+Set a **spend limit** in the Groq console so a runaway bill is impossible.
+
+Limits (change the constants and redeploy):
+
+- `app/clippy/limits.ts`: `VISITOR_DAILY_LIMIT` (20 messages per visitor per
+  day, keyed by hashed IP) and `GLOBAL_DAILY_LIMIT` (500 per day, site-wide).
+- `app/clippy/validate.ts`: `MAX_INPUT_CHARS` (500 per message) and
+  `MAX_HISTORY` (last 6 messages kept).
+- `app/clippy/groq.ts`: `max_tokens` (300 per reply) and `GROQ_TIMEOUT_MS`
+  (gives up on Groq after 20s).
+
+What Clippy knows and says:
+
+- `app/clippy/knowledge.ts`: the facts it may use. It is told to answer only
+  from these, so keep them accurate.
+- `app/clippy/hints.ts`: achievement hints (nudges, never solutions) and the site guide Clippy uses to suggest windows.
+- `app/clippy/invitations.ts`: the invitation bubbles that pop up.
+- `app/components/clippy/ClippyAgent.tsx`: bubble timings (first bubble after
+  20s, then every 2 minutes while the chat has never been opened; each stays
+  10s; "Just browsing, thanks" pushes the next one back 5 minutes).
+
+Credits: the agent is rendered with [clippyjs](https://github.com/pi0/clippyjs)
+(MIT). Clippy's name and artwork belong to Microsoft; this is a fan/parody
+use and is not affiliated with or endorsed by them.

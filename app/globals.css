@@ -3211,3 +3211,220 @@ MOBILE PROJECT DETAILS
   color: #72777d;
   text-align: center;
 }
+
+/* =========================
+CLIPPY
+========================= */
+
+.clippy-bubble {
+position: fixed;
+z-index: 10002;
+box-sizing: border-box;
+background: #ffffcc;
+color: #000;
+border: 1px solid #000;
+/* Overrides the global square-corner reset: the Office bubble is round. */
+border-radius: 10px !important;
+padding: 10px 12px;
+font-family: Tahoma, "MS Sans Serif", sans-serif;
+font-size: 12px;
+line-height: 1.35;
+box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* Tail pointing down at Clippy (black outline + yellow fill). */
+.clippy-bubble::after {
+content: "";
+position: absolute;
+left: calc(var(--clippy-tail, 190px) - 7px);
+bottom: -14px;
+border: 7px solid transparent;
+border-top-color: #000;
+}
+
+.clippy-bubble::before {
+content: "";
+position: absolute;
+left: calc(var(--clippy-tail, 190px) - 6px);
+bottom: -12px;
+border: 6px solid transparent;
+border-top-color: #ffffcc;
+z-index: 1;
+}
+
+.clippy-bubble p {
+margin: 0 0 8px;
+}
+
+.clippy-bubble ul {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.clippy-bubble li {
+position: relative;
+padding: 3px 0 3px 18px;
+}
+
+.clippy-bubble li::before {
+content: "";
+position: absolute;
+left: 2px;
+top: 6px;
+width: 9px;
+height: 9px;
+border-radius: 50% !important;
+background: radial-gradient(circle at 35% 35%, #8af, #0040c0);
+}
+
+.clippy-bubble button {
+all: unset;
+cursor: pointer;
+}
+
+.clippy-bubble button:hover,
+.clippy-bubble button:focus-visible {
+text-decoration: underline;
+color: #00c;
+}
+
+/* =========================
+CLIPPY CHAT
+========================= */
+
+.clippy-chat {
+left: calc(50% - 210px);
+top: 12vh;
+width: min(420px, 92vw);
+color: #000;
+}
+
+.clippy-chat-body {
+display: flex;
+flex-direction: column;
+gap: 8px;
+padding: 8px;
+}
+
+.clippy-chat-log {
+height: 240px;
+overflow-y: auto;
+background: #fff;
+padding: 8px;
+font-size: 13px;
+line-height: 1.4;
+box-shadow:
+inset 1px 1px #808080,
+inset -1px -1px #fff,
+inset 2px 2px #000;
+}
+
+.clippy-chat-msg {
+margin: 0 0 8px;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
+}
+
+.clippy-chat-msg b {
+display: block;
+font-size: 11px;
+opacity: 0.7;
+}
+
+.clippy-chat-thinking {
+color: #555;
+}
+
+.clippy-chat-open {
+margin: 4px 4px 4px 0;
+padding: 3px 10px;
+color: #000;
+font-size: 12px;
+}
+
+.clippy-chat-controls {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.clippy-chat-input {
+font: inherit;
+padding: 5px;
+border: 0;
+background: #fff;
+color: #000;
+box-shadow:
+inset 1px 1px #808080,
+inset -1px -1px #fff,
+inset 2px 2px #000;
+}
+
+.clippy-chat-input:focus {
+outline: 1px dotted #000080;
+outline-offset: -4px;
+}
+
+.clippy-chat-buttons {
+display: flex;
+flex-wrap: wrap;
+justify-content: flex-end;
+gap: 6px;
+}
+
+.clippy-chat-buttons .bevel {
+min-width: 80px;
+padding: 4px 10px;
+color: #000;
+}
+
+.clippy-chat-buttons .bevel:disabled {
+color: #808080;
+text-shadow: 1px 1px #fff;
+cursor: default;
+}
+
+.clippy-chat-buttons .bevel:not(:disabled):active,
+.clippy-chat-open:active {
+box-shadow:
+inset 1px 1px #0a0a0a,
+inset -1px -1px #fff,
+inset 2px 2px #808080;
+}
+
+/* Phones: full-screen above the taskbar. Clippy idles bottom-right, so the
+   controls leave him room. */
+@media (max-width: 700px) {
+  .clippy-chat {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: calc(100dvh - 37px) !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .clippy-chat-body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .clippy-chat-log {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  .clippy-chat-controls {
+    padding-right: 96px;
+  }
+
+  .clippy-chat-buttons {
+    justify-content: flex-start;
+  }
+
+  .clippy-chat-buttons .bevel {
+    min-width: 0;
+  }
+}

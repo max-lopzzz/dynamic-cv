@@ -12,6 +12,13 @@ import { WallOfKindWords } from "./components/WallOfKindWords";
 import { AssetIcon } from "./components/AssetIcon";
 import { Terminal } from "./terminal";
 import { AchievementToast } from "./components/AchievementToast";
+import {
+  ClippyAgent,
+  CLIPPY_APPEAR_MS,
+  type ClippyHandle,
+} from "./components/clippy/ClippyAgent";
+import { ClippyChat } from "./components/clippy/ClippyChat";
+import type { OpenableWindow } from "./clippy/windows";
 import { projects, Category } from "./projects";
 import { playWindowsSound } from "./sound";
 import { nowItems, nowUpdatedAt } from "./now";
@@ -23,6 +30,47 @@ import {
 } from "./achievements";
 
 type Stage = "boot" | "login" | "desktop";
+
+const CLIPPY_DISMISSED_KEY = "maxos-clippy-dismissed";
+
+// Easter-egg key listeners ignore keys typed into text fields.
+function isTypingTarget(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA")
+  );
+}
+
+function readClippyDismissed() {
+  try {
+    return (
+      window.sessionStorage.getItem(
+        CLIPPY_DISMISSED_KEY
+      ) === "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function writeClippyDismissed(dismissed: boolean) {
+  try {
+    if (dismissed) {
+      window.sessionStorage.setItem(
+        CLIPPY_DISMISSED_KEY,
+        "1"
+      );
+    } else {
+      window.sessionStorage.removeItem(
+        CLIPPY_DISMISSED_KEY
+      );
+    }
+  } catch {
+    // Storage blocked — Clippy just won't remember.
+  }
+}
 
 const beadArtShareUrl =
   process.env.NEXT_PUBLIC_BEADART_SHARE_URL;
@@ -58,6 +106,7 @@ const icons = {
   devStats: "/assets/icons/System Properties.ico",
   wall: "/assets/icons/Hearts.ico",
   achievements: "/assets/icons/Freecell.ico",
+  clippy: "/assets/icons/File.ico",
 };
 
 export default function Home() {
@@ -93,6 +142,16 @@ export default function Home() {
   const [godMode, setGodMode] = useState(false);
   const [logoSecret, setLogoSecret] = useState(false);
 
+  // Clippy: rendered unless dismissed earlier this session.
+  // clippyChatOpen is set by onOpenChat and shows the ClippyChat window.
+  const clippyRef = useRef<ClippyHandle>(null);
+  const [clippyMounted, setClippyMounted] =
+    useState(false);
+  const [clippyAppearDelay, setClippyAppearDelay] =
+    useState(CLIPPY_APPEAR_MS);
+  const [clippyChatOpen, setClippyChatOpen] =
+    useState(false);
+
   const [projectFilter, setProjectFilter] =
     useState<"all" | Category>("all");
 
@@ -113,9 +172,10 @@ export default function Home() {
     wall: 31,
     achievements: 32,
     earth: 33,
+    clippy: 34,
   });
 
-  const zCounter = useRef(34);
+  const zCounter = useRef(35);
   const keyBuffer = useRef<string[]>([]);
   const letterBuffer = useRef<string[]>([]);
   const logoClicks = useRef(0);
@@ -130,6 +190,7 @@ export default function Home() {
     // Load persisted achievements from localStorage on the client.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUnlocked(loadUnlockedAchievements());
+    setClippyMounted(!readClippyDismissed());
   }, []);
 
   function unlock(id: string) {
@@ -167,18 +228,21 @@ export default function Home() {
     setHobbies(true);
     focus("hobbies");
     playWindowsSound("open");
+    clippyRef.current?.react("hobbies");
   }
 
   function openPlayer() {
     setMusic(true);
     focus("player");
     playWindowsSound("open");
+    clippyRef.current?.react("player");
   }
 
   function openTerminal() {
     setTerminalOpen(true);
     focus("terminal");
     playWindowsSound("open");
+    clippyRef.current?.react("terminal");
     unlock("terminal");
   }
 
@@ -186,36 +250,42 @@ export default function Home() {
     setGuestbook(true);
     focus("guestbook");
     playWindowsSound("open");
+    clippyRef.current?.react("guestbook");
   }
 
   function openEarth() {
     setEarth(true);
     focus("earth");
     playWindowsSound("open");
+    clippyRef.current?.react("earth");
   }
 
   function openPortfolio() {
     setPortfolio(true);
     focus("portfolio");
     playWindowsSound("open");
+    clippyRef.current?.react("portfolio");
   }
 
   function openAbout() {
     setAbout(true);
     focus("about");
     playWindowsSound("open");
+    clippyRef.current?.react("about");
   }
 
   function openNow() {
     setNow(true);
     focus("now");
     playWindowsSound("open");
+    clippyRef.current?.react("now");
   }
 
   function openHireMe() {
     setHireMe(true);
     focus("hireMe");
     playWindowsSound("open");
+    clippyRef.current?.react("hireMe");
     unlock("hire-me");
   }
 
@@ -223,18 +293,61 @@ export default function Home() {
     setDevStats(true);
     focus("devStats");
     playWindowsSound("open");
+    clippyRef.current?.react("devStats");
   }
 
   function openWall() {
     setWall(true);
     focus("wall");
     playWindowsSound("open");
+    clippyRef.current?.react("wall");
   }
 
   function openAchievements() {
     setAchievementsOpen(true);
     focus("achievements");
     playWindowsSound("open");
+    clippyRef.current?.react("achievements");
+  }
+
+  function dismissClippy() {
+    writeClippyDismissed(true);
+    unlock("clippy-dismissed");
+    // Unmounting the chat aborts any reply and clears its log.
+    setClippyChatOpen(false);
+  }
+
+  function openClippyChat() {
+    setClippyChatOpen(true);
+    focus("clippy");
+  }
+
+  // Windows Clippy may offer to open via [[open:<id>]].
+  const clippyWindowOpeners: Record<OpenableWindow, () => void> = {
+    about: openAbout,
+    now: openNow,
+    portfolio: openPortfolio,
+    music: openPlayer,
+    hobbies: openHobbies,
+    guestbook: openGuestbook,
+    earth: openEarth,
+    terminal: openTerminal,
+    hireMe: openHireMe,
+    devStats: openDevStats,
+    wall: openWall,
+    achievements: openAchievements,
+  };
+
+  function openClippy() {
+    writeClippyDismissed(false);
+    playWindowsSound("open");
+
+    if (clippyMounted) {
+      clippyRef.current?.show();
+    } else {
+      setClippyAppearDelay(0);
+      setClippyMounted(true);
+    }
   }
 
   function handleLogoClick() {
@@ -350,6 +463,8 @@ export default function Home() {
     };
 
     const handleKonami = (event: KeyboardEvent) => {
+      if (isTypingTarget(event.target)) return;
+
       const key = event.key.toLowerCase();
 
       keyBuffer.current = [
@@ -378,6 +493,7 @@ export default function Home() {
       event: KeyboardEvent
     ) => {
       if (stage !== "desktop") return;
+      if (isTypingTarget(event.target)) return;
 
       const key = event.key.toLowerCase();
 
@@ -934,6 +1050,17 @@ export default function Home() {
             Achievements ({unlocked.length}/
             {achievements.length})
           </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={openClippy}
+        >
+          <AssetIcon
+            src={icons.clippy}
+          />
+
+          <span>clippy.exe</span>
         </button>
       </aside>
 
@@ -1912,6 +2039,39 @@ export default function Home() {
       {/* ==================================================
           ACHIEVEMENT TOAST
           ================================================== */}
+
+      {/* ==================================================
+          CLIPPY
+          ================================================== */}
+
+      {clippyMounted && (
+        <ClippyAgent
+          ref={clippyRef}
+          chatOpen={clippyChatOpen}
+          appearDelay={clippyAppearDelay}
+          onOpenChat={openClippyChat}
+          onDismiss={dismissClippy}
+        />
+      )}
+
+      {clippyChatOpen && (
+        <ClippyChat
+          clippy={clippyRef}
+          zIndex={zMap.clippy}
+          onFocus={focus}
+          onClose={() =>
+            closeWindow(setClippyChatOpen)
+          }
+          onLeave={() =>
+            clippyRef.current
+              ? clippyRef.current.leave()
+              : dismissClippy()
+          }
+          onOpenWindow={(id) =>
+            clippyWindowOpeners[id]()
+          }
+        />
+      )}
 
       {achievementToast && (
         <AchievementToast

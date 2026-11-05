@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, type RedisClientType } from "redis";
-
-const REDIS_URL =
-  process.env.KV_REDIS_URL || process.env.REDIS_URL;
+import type { RedisClientType } from "redis";
+import {
+  getClientIp,
+  getRedis,
+  redisConfigured,
+} from "../../lib/redis";
 
 const MODERATION_SESSION_SECRET =
   process.env.MODERATION_SESSION_SECRET;
@@ -24,48 +26,6 @@ type Entry = {
   ts: number;
   status: "pending" | "approved";
 };
-
-function configured() {
-  return Boolean(REDIS_URL);
-}
-
-let clientPromise: Promise<RedisClientType> | null = null;
-
-async function getClient(): Promise<RedisClientType> {
-  if (!REDIS_URL) {
-    throw new Error("not_configured");
-  }
-
-  if (!clientPromise) {
-    const client = createClient({
-      url: REDIS_URL,
-    }) as RedisClientType;
-
-    client.on("error", () => {
-      // Errors are handled by the request try/catch.
-    });
-
-    clientPromise = client
-      .connect()
-      .then(() => client)
-      .catch((error) => {
-        clientPromise = null;
-        throw error;
-      });
-  }
-
-  return clientPromise;
-}
-
-function getClientIp(req: NextRequest) {
-  const forwarded = req.headers.get("x-forwarded-for");
-
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
-
-  return req.headers.get("x-real-ip") || "unknown";
-}
 
 function cleanText(value: unknown, maxLength: number) {
   if (typeof value !== "string") {
@@ -125,7 +85,7 @@ async function getEntries(client: RedisClientType) {
 }
 
 export async function GET(req: NextRequest) {
-  if (!configured()) {
+  if (!redisConfigured()) {
     return NextResponse.json({
       entries: [],
       configured: false,
@@ -136,7 +96,7 @@ export async function GET(req: NextRequest) {
     req.nextUrl.searchParams.get("moderation");
 
   try {
-    const client = await getClient();
+    const client = await getRedis();
     const entries = await getEntries(client);
 
     if (moderation === "pending") {
@@ -178,7 +138,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!configured()) {
+  if (!redisConfigured()) {
     return NextResponse.json(
       { error: "not_configured" },
       { status: 503 }
@@ -231,7 +191,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const client = await getClient();
+    const client = await getRedis();
 
     /*
      * Rate limit:
@@ -300,7 +260,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!configured()) {
+  if (!redisConfigured()) {
     return NextResponse.json(
       { error: "not_configured" },
       { status: 503 }
@@ -353,7 +313,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const client = await getClient();
+    const client = await getRedis();
     const entries = await getEntries(client);
 
     const index = entries.findIndex(
