@@ -5,6 +5,7 @@ import {
   extractDeltas,
   streamGroq,
 } from "../../clippy/groq";
+import { guardAnswer } from "../../clippy/guard";
 import { buildSystemPrompt } from "../../clippy/prompt";
 import { parseChatRequest } from "../../clippy/validate";
 import { getClientIp, getRedis, redisConfigured } from "../../lib/redis";
@@ -74,35 +75,32 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
   let buffer = "";
 
+  // The whole answer is collected and checked by guardAnswer before any of
+  // it reaches the visitor, so a spoiler can't slip out mid-stream.
   const stream = new ReadableStream<Uint8Array>({
-    async pull(controller) {
+    async start(controller) {
+      let answer = "";
       try {
         while (true) {
           const { value, done } = await reader.read();
-          if (done) {
-            controller.close();
-            return;
-          }
+          if (done) break;
           buffer += decoder.decode(value, { stream: true });
           const out = extractDeltas(buffer);
           buffer = out.rest;
-          if (out.deltas.length) {
-            controller.enqueue(encoder.encode(out.deltas.join("")));
-          }
+          answer += out.deltas.join("");
           if (out.done) {
             await reader.cancel().catch(() => {});
-            controller.close();
-            return;
+            break;
           }
-          if (out.deltas.length) return;
         }
       } catch {
-        // Groq failed mid-stream: end gracefully with what we have.
-        try {
-          controller.close();
-        } catch {
-          // already closed
-        }
+        // Groq failed mid-stream: send what we have.
+      }
+      try {
+        if (answer) controller.enqueue(encoder.encode(guardAnswer(answer)));
+        controller.close();
+      } catch {
+        // visitor already left
       }
     },
     cancel() {

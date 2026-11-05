@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { extractDeltas, GROQ_TIMEOUT_MS, streamGroq } from "./groq";
+import { DEFAULT_GROQ_MODEL, extractDeltas, GROQ_TIMEOUT_MS, streamGroq } from "./groq";
 
 const chunk = (content: string) =>
   `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
@@ -53,6 +53,20 @@ describe("streamGroq", () => {
       max_tokens: 300,
       temperature: 0.6,
     });
+  });
+
+  it("asks gpt-oss models for low reasoning effort so answers fit max_tokens", async () => {
+    const fetchMock = vi.fn(async () => new Response(new ReadableStream(), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await streamGroq([{ role: "user", content: "hi" }], { apiKey: "k", model: "openai/gpt-oss-120b" });
+    await streamGroq([{ role: "user", content: "hi" }], { apiKey: "k", model: "m" });
+    const bodies = fetchMock.mock.calls.map((c) => JSON.parse((c as unknown as [string, RequestInit])[1].body as string));
+    expect(bodies[0].reasoning_effort).toBe("low");
+    expect(bodies[1]).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("defaults to a model Groq still serves", () => {
+    expect(DEFAULT_GROQ_MODEL).toBe("openai/gpt-oss-120b");
   });
 
   it("always passes an abort signal (upstream timeout) to fetch", async () => {

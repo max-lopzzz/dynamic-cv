@@ -8,3 +8,4 @@ node_modules
 
 # brainstorming mockups
 .superpowers/
+.env*

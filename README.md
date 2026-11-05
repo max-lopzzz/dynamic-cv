@@ -35,7 +35,7 @@ It streams replies from [Groq](https://console.groq.com) and only needs:
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `GROQ_API_KEY` | yes | Create it in the Groq console. |
-| `GROQ_MODEL` | no | Defaults to `llama-3.1-8b-instant`. |
+| `GROQ_MODEL` | no | Defaults to `openai/gpt-oss-120b`. Groq retires models, so check console.groq.com/docs/models before changing it. |
 | `KV_REDIS_URL` / `REDIS_URL` / `KV_URL` | yes | Redis, used for rate limits (see above). |
 
 For local dev, put `GROQ_API_KEY` and the Redis URL in `.env.local`. It is

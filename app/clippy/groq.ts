@@ -1,4 +1,5 @@
-export const DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant";
+// Check https://console.groq.com/docs/models before changing: Groq retires models.
+export const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -60,6 +61,10 @@ export async function streamGroq(
       stream: true,
       max_tokens: 300,
       temperature: 0.6,
+      // gpt-oss models "think" first, and that counts toward max_tokens.
+      ...(opts.model.startsWith("openai/gpt-oss")
+        ? { reasoning_effort: "low" }
+        : {}),
     }),
     signal,
   });

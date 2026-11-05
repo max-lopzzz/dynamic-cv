@@ -18,6 +18,7 @@ import * as redisMod from "../../lib/redis";
 import { checkLimits } from "../../clippy/limits";
 import { streamGroq } from "../../clippy/groq";
 import { buildSystemPrompt } from "../../clippy/prompt";
+import { SPOILER_REPLY } from "../../clippy/guard";
 
 const sse = (...parts: string[]) =>
   parts
@@ -148,5 +149,13 @@ describe("POST /api/clippy", () => {
     );
     const res = await POST(req(valid));
     expect(await res.text()).toBe("Part");
+  });
+
+  it("replaces an answer that spoils an achievement", async () => {
+    vi.mocked(streamGroq).mockResolvedValue(
+      bytesStream(sse("Try up, up, ", "down, down, left, right!")),
+    );
+    const res = await POST(req(valid));
+    expect(await res.text()).toBe(SPOILER_REPLY);
   });
 });
