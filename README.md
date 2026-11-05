@@ -61,9 +61,10 @@ What Clippy knows and says:
   from these, so keep them accurate.
 - `app/clippy/hints.ts`: achievement hints (nudges, never solutions) and the site guide Clippy uses to suggest windows.
 - `app/clippy/invitations.ts`: the invitation bubbles that pop up.
-- `app/components/clippy/ClippyAgent.tsx`: bubble timings (first bubble after
-  20s, then every 2 minutes while the chat has never been opened; each stays
-  10s; "Just browsing, thanks" pushes the next one back 5 minutes).
+- `app/components/clippy/ClippyAgent.tsx`: timings (Clippy appears 0.5s
+  after the desktop; first bubble 6s after that, then every 2 minutes while
+  the chat has never been opened; each stays 10s; "Just browsing, thanks"
+  pushes the next one back 5 minutes). Clicking Clippy opens the bubble any time.
 
 Credits: the agent is rendered with [clippyjs](https://github.com/pi0/clippyjs)
 (MIT). Clippy's name and artwork belong to Microsoft; this is a fan/parody

@@ -15,6 +15,7 @@ import { AchievementToast } from "./components/AchievementToast";
 import {
   ClippyAgent,
   CLIPPY_APPEAR_MS,
+  preloadClippy,
   type ClippyHandle,
 } from "./components/clippy/ClippyAgent";
 import { ClippyChat } from "./components/clippy/ClippyChat";
@@ -190,7 +191,10 @@ export default function Home() {
     // Load persisted achievements from localStorage on the client.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUnlocked(loadUnlockedAchievements());
-    setClippyMounted(!readClippyDismissed());
+    const clippyWanted = !readClippyDismissed();
+    setClippyMounted(clippyWanted);
+    // Download Clippy during the boot screen so he's ready on the desktop.
+    if (clippyWanted) void preloadClippy();
   }, []);
 
   function unlock(id: string) {
