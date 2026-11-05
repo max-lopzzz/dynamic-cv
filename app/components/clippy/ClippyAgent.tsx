@@ -25,7 +25,7 @@ type ClippyAgentProps = {
   onOpenChat: () => void;
   onDismiss: () => void;
   chatOpen: boolean;
-  /** Delay before Clippy first appears (default: 3 s after the desktop). */
+  /** Delay before Clippy first appears (default: 0.5 s after the desktop). */
   appearDelay?: number;
 };
 
@@ -33,8 +33,9 @@ type Agent = Awaited<
   ReturnType<typeof import("clippyjs").initAgent>
 >;
 
-export const CLIPPY_APPEAR_MS = 3000;
-const FIRST_BUBBLE_MS = 20000;
+export const CLIPPY_APPEAR_MS = 500;
+/** First invitation, counted from when Clippy appears. */
+const FIRST_BUBBLE_MS = 6000;
 const REPEAT_BUBBLE_MS = 120000;
 const BUBBLE_VISIBLE_MS = 10000;
 const BROWSING_BUBBLE_MS = 300000;
@@ -43,7 +44,6 @@ const MOBILE_BREAKPOINT = 700;
 const MOBILE_SCALE = 0.7;
 const EDGE_MARGIN = 12;
 const CLICK_SLOP = 4;
-const REACT_CHANCE = 0.5;
 
 // Which animation fits each desktop window. Ids match page.tsx's focus ids.
 const WINDOW_ANIMATIONS: Record<string, string> = {
@@ -62,6 +62,28 @@ const WINDOW_ANIMATIONS: Record<string, string> = {
   wall: "Congratulate",
   achievements: "Congratulate",
 };
+
+let modulesPromise: Promise<
+  [typeof import("clippyjs"), typeof import("clippyjs/agents/clippy")]
+> | null = null;
+
+/** Starts downloading clippyjs early (e.g. during the boot screen). */
+export function preloadClippy() {
+  modulesPromise ??= Promise.all([
+    import("clippyjs"),
+    import("clippyjs/agents/clippy"),
+  ]);
+  return modulesPromise;
+}
+
+/**
+ * Plays an animation right away. clippyjs otherwise waits for the current
+ * idle animation (some loop for a long time) before starting it.
+ */
+function playNow(agent: Agent, animation: string) {
+  agent.stop();
+  agent.play(animation);
+}
 
 function scaleFor(width: number) {
   return width <= MOBILE_BREAKPOINT ? MOBILE_SCALE : 1;
@@ -127,7 +149,7 @@ export function ClippyAgent({
         }
 
         setBubbleText(nextInvitation(invitationIndex.current++));
-        agentRef.current?.play("GetAttention");
+        if (agentRef.current) playNow(agentRef.current, "GetAttention");
 
         hideBubbleTimer.current = window.setTimeout(() => {
           hideBubbleTimer.current = null;
@@ -146,6 +168,26 @@ export function ClippyAgent({
     setBubbleText(null);
     onOpenChatRef.current();
   }, [clearBubbleTimers]);
+
+  // Clicking Clippy opens the bubble with its three choices (or closes it).
+  const bubbleOpenRef = useRef(false);
+  useEffect(() => {
+    bubbleOpenRef.current = bubbleText !== null;
+  }, [bubbleText]);
+
+  const toggleBubble = useCallback(() => {
+    if (hiddenRef.current) return;
+    if (hideBubbleTimer.current !== null) {
+      window.clearTimeout(hideBubbleTimer.current);
+      hideBubbleTimer.current = null;
+    }
+    if (bubbleOpenRef.current) {
+      setBubbleText(null);
+      return;
+    }
+    setBubbleText(nextInvitation(invitationIndex.current++));
+    if (agentRef.current) playNow(agentRef.current, "GetAttention");
+  }, []);
 
   // Chat state from the parent: once it has been open, bubbles stop for good.
   useEffect(() => {
@@ -183,14 +225,11 @@ export function ClippyAgent({
         e.clientY - pointerStart.y
       );
       pointerStart = null;
-      if (moved < CLICK_SLOP) openChat();
+      if (moved < CLICK_SLOP) toggleBubble();
     };
 
     void (async () => {
-      const [{ initAgent }, { default: clippy }] = await Promise.all([
-        import("clippyjs"),
-        import("clippyjs/agents/clippy"),
-      ]);
+      const [{ initAgent }, { default: clippy }] = await preloadClippy();
       const created = await initAgent(clippy);
 
       // Strict mode (or a fast unmount) already cleaned up: throw it away.
@@ -225,10 +264,9 @@ export function ClippyAgent({
         hiddenRef.current = false;
         created.show(false);
         setAnchor(el);
+        scheduleBubble(FIRST_BUBBLE_MS);
       }, appearDelay);
     })();
-
-    scheduleBubble(FIRST_BUBBLE_MS);
 
     return () => {
       cancelled = true;
@@ -245,7 +283,7 @@ export function ClippyAgent({
     };
     // appearDelay is only read on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openChat, scheduleBubble, clearBubbleTimers]);
+  }, [toggleBubble, scheduleBubble, clearBubbleTimers]);
 
   const handleLeave = useCallback(() => {
     clearBubbleTimers();
@@ -271,12 +309,12 @@ export function ClippyAgent({
         const animation = WINDOW_ANIMATIONS[windowId];
         const agent = agentRef.current;
         if (!animation || !agent || hiddenRef.current) return;
-        if (Math.random() < REACT_CHANCE) agent.play(animation);
+        playNow(agent, animation);
       },
       play(animation: string) {
         const agent = agentRef.current;
         if (!agent || hiddenRef.current) return;
-        agent.play(animation);
+        playNow(agent, animation);
       },
       show() {
         const agent = agentRef.current;
