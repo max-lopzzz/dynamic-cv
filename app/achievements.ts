@@ -63,6 +63,12 @@ export const achievements: Achievement[] = [
       "Found the hidden page via the terminal.",
     emoji: "🥪",
   },
+  {
+    id: "clippy-dismissed",
+    title: "It looks like you want to be alone",
+    description: "Politely declined some office assistance.",
+    emoji: "📎",
+  },
 ];
 
 const STORAGE_KEY = "maxos-achievements";

@@ -5,3 +5,7 @@ node_modules
 *.tsbuildinfo
 .DS_Store
 .env.local
+
+# brainstorming mockups
+.superpowers/
+.env*
