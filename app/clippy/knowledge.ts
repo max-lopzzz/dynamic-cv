@@ -54,6 +54,8 @@ Computer Technologies engineering student at Tecnológico de Monterrey. Software
 
 # Game jams
 
+Max's team for both Pixel Borregos game jams was called Momoa.
+
 ## Pixel Borregos 2025: 1st place
 "Pedro No Quiere Pagar Impuestos" (github.com/max-lopzzz/pedro-no-quiere-pagar-impuestos). A Unity roguelite solitaire game: Pedro, a samurai cat, cooks dishes from ingredient cards to drive off an invading dog army. It has score targets, redraws, a store with condiments and allies (Catdrick Lamar, Shao Cat), and multipliers. 5-person team; Max led the C#/Unity programming.
 
