@@ -10,7 +10,7 @@ export const knowledge = `# About Max
 - Based in Monterrey, Nuevo León, Mexico.
 - Headline: CS student @ Tec de Monterrey · Software Engineer Intern · Indie App & Game Developer.
 - In his own words (About window): "Engineering in Computer Technologies @ Tec de Monterrey. Software engineer, indie maker, game developer, drummer. Currently making things for NGOs and people who need them."
-- Links: email m.lopz.montn@gmail.com · LinkedIn linkedin.com/in/max-lopezzz · GitHub github.com/max-lopzzz · website max-lopezzz.neocities.org
+- Links: email m.lopz.montn@gmail.com · LinkedIn linkedin.com/in/max-lopezzz · GitHub github.com/max-lopzzz
 
 ## Summary (from his CV)
 
@@ -47,7 +47,7 @@ Computer Technologies engineering student at Tecnológico de Monterrey. Software
 
 # Project ATLAS
 
-- Project ATLAS (Unity, WebGL): a gamified HR self-service portal prototype, industry-sponsored. Details are under NDA.
+- Project ATLAS (Unity, WebGL): a gamified HR self-service portal prototype, industry-sponsored, built by Top-Down Studios (Max's 5-person student team). Details are under NDA.
 - ATLAS Web Prototype (HTML, JS; github.com/max-lopzzz/atlas-prototipo-web): the public companion to Project ATLAS. The team built an AI NPC chat (3 assistants) and an accessibility layer (contrast, reduced motion, keyboard navigation). 5-person team.
 - Max's role: he originated the project idea and its features, led the team's SCRUM process, wrote the documentation, and contributed a bit across the game, front-end and back-end.
 - Anything else about ATLAS (sponsors, other repos, features, internal details) is under NDA: Clippy must say so and not speculate.
@@ -61,18 +61,17 @@ Computer Technologies engineering student at Tecnológico de Monterrey. Software
 "One Man Rave" (team repo github.com/a16b07/Polo; Max's fork with a full README at github.com/max-lopzzz/one-man-rave). A first-person roguelite wave shooter in Unity 6 (URP, with a VHS/bitcrush filter): Polo fights his way back into the nightclub he lost to drinking. Post-wave risk/reward perks, guns and knives, and three hidden "Consejos" that decide between two endings. A team project.
 
 # Other hackathons
-- FEMSA "HackTheShelf" 2025.
-- Data Science Club Datathon 2025.
+- FEMSA "HackTheShelf" 2025: a challenge from OXXO. Max's team trained a computer vision program to identify missing or misplaced items on a convenience-store shelf (Python; repo github.com/max-lopzzz/HackTheShelf).
+- Data Science Club Datathon 2025: a challenge from Hey Banco. Max's team trained an LLM on a fictional user's financial data so it could suggest financial decisions, such as how much to save each month based on their earnings and what they have to pay and when.
 - The Brainrot Hackathon (see Skibidi Toilet Dating Simulator below).
 
 # More projects on GitHub (github.com/max-lopzzz)
 
 - Pawmodoro (pawmodoro-peach.vercel.app): a kawaii Pomodoro timer with a supportive cat, a to-do panel, dark mode, and shared rooms where you can see who else is focusing or on a break; built for macOS, with an iOS build via Capacitor.
-- Pokémon Team Picker: a Python program where you choose a Pokémon generation, game and gym, and see the gym leader's team; planned features include comparing your own Pokémon and recommending the best team. It also has a web version.
+- Pokémon Team Picker: a Python program where you choose a Pokémon generation, game and gym, and see the gym leader's team; planned features include comparing your own Pokémon and recommending the best team.
 - Who's That Pokémon?: a Python/Streamlit quiz game where you guess Pokémon from their images, covering all 1215 Pokémon in its Pokédex data, with score tracking.
 - MaxBot: an earlier intent-based chatbot (Python, Streamlit) that answers questions about Max's CV.
 - Skibidi Toilet Dating Simulator: Max's entry to the Brainrot Hackathon. A Ren'Py visual novel where you romance a Skibidi Toilet character, with multiple endings, meme-filled dialogue and a "social credit" score.
-- HackTheShelf: Max's project repo from the FEMSA HackTheShelf 2025 hackathon (Python).
 - Clippy vs BonziBuddy: a 2D Unity 6 game connected to a REST API. Clippy (the player!) collects BonziBuddy's bananas and dodges the peels; scores are saved through the API. Yes, Max made a game about Clippy beating BonziBuddy.
 - sprint-entrevista (sprint-entrevista.vercel.app): a study platform that uses AI to generate personalized interview question banks from a job description (optionally your CV and GitHub), with 5 practice modes including flashcards, a mock interview and AI-graded open answers. Spanish and English.
 
@@ -98,7 +97,7 @@ Computer Technologies engineering student at Tecnológico de Monterrey. Software
 # Fun facts
 
 - His special interest is Tweek and Craig from South Park.
-- He plays drums to metal.
+- He plays metal on the drums.
 - He makes perler/fuse bead art.
 <!-- Max: add more fun facts here -->
 `;
